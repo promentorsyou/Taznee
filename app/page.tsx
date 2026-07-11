@@ -1,18 +1,11 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/product-card";
+import { getHomepageData } from "@/lib/catalog";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [categories, featured] = await Promise.all([
-    prisma.category.findMany({ orderBy: { name: "asc" }, take: 5 }),
-    prisma.product.findMany({
-      where: { isActive: true, isFeatured: true },
-      include: { images: { orderBy: { position: "asc" }, take: 1 }, designer: true },
-      take: 8,
-    }),
-  ]);
+  const { categories, featured } = await getHomepageData();
 
   return (
     <div>
@@ -65,18 +58,7 @@ export default async function HomePage() {
         <h2 className="font-serif text-2xl mb-6">Featured Pieces</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {featured.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={{
-                slug: p.slug,
-                name: p.name,
-                basePriceCents: p.basePriceCents,
-                compareAtCents: p.compareAtCents,
-                readyToShip: p.readyToShip,
-                imageUrl: p.images[0]?.url ?? null,
-                designerName: p.designer?.name,
-              }}
-            />
+            <ProductCard key={p.slug} product={p} />
           ))}
         </div>
       </section>

@@ -1,0 +1,55 @@
+name: Deploy static UI preview to GitHub Pages
+
+# Publishes a database-free, auth-free static export of the browsable
+# storefront (home, category, product pages) using the fixture data in
+# lib/static-data.ts. Cart, checkout, accounts, and admin are NOT part
+# of this build — those require the live deployment (see README).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Build static export
+        run: ./scripts/build-static.sh
+        env:
+          GITHUB_PAGES_REPO: ${{ github.event.repository.name }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

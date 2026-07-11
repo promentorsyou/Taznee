@@ -110,6 +110,40 @@ downloads, so the e2e suite was verified for syntax and correct test discovery
 - `prisma/seed.ts` — demo data seed script
 - `e2e/` — Playwright end-to-end tests
 
+## Static UI preview (GitHub Pages)
+
+`.github/workflows/deploy-pages.yml` publishes a **database-free, read-only preview**
+of the browsable storefront (homepage, category pages, product pages) to GitHub
+Pages on every push to `main`. It uses the in-memory fixture data in
+`lib/static-data.ts` instead of Postgres, since GitHub Pages only serves static
+files and has no server runtime.
+
+**Not included in the static preview** — because they need a live server/database:
+cart, checkout, sign-in/accounts, the admin dashboard, and category filtering
+(only `searchParams`-free pages can be statically exported). Those work in the
+full app (`npm run dev` locally, or the Vercel deployment described above).
+
+To enable it: in the repo's GitHub Settings → Pages, set **Source** to
+"GitHub Actions". The workflow will then publish to
+`https://<your-github-username>.github.io/<repo-name>/` on the next push to `main`.
+
+To build the static export locally:
+
+```bash
+npm ci
+npx prisma generate
+GITHUB_PAGES_REPO=<repo-name> ./scripts/build-static.sh
+# output is in ./out — serve it with any static file server to preview
+npx serve out
+```
+
+`scripts/build-static.sh` temporarily moves server-only routes (`app/api`,
+`app/cart`, `app/checkout`, `app/login`, `app/register`, `app/account`,
+`app/admin`, `app/actions`) out of the build and swaps in the `*.static.tsx`
+variants of the header, category, and product pages that don't reference
+auth/server actions — then always restores everything afterward, even on
+build failure.
+
 ## Known Limitations / Not Yet Implemented
 
 This is a scoped demo build. The following are intentionally out of scope:

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/product-card";
-import type { Prisma } from "@prisma/client";
+import { getCategoryPageData } from "@/lib/catalog";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -18,62 +17,17 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   const { slug } = await params;
   const filters = await searchParams;
 
-  const category = await prisma.category.findUnique({ where: { slug } });
-  if (!category) notFound();
-
-  const where: Prisma.ProductWhereInput = {
-    categoryId: category.id,
-    isActive: true,
-  };
-
-  if (filters.readyToShip === "true") {
-    where.readyToShip = true;
-  }
-
-  if (filters.price) {
-    const [minStr, maxStr] = filters.price.split("-");
-    const min = Number(minStr);
-    const max = Number(maxStr);
-    where.basePriceCents = {
-      ...(Number.isFinite(min) ? { gte: Math.round(min * 100) } : {}),
-      ...(Number.isFinite(max) ? { lte: Math.round(max * 100) } : {}),
-    };
-  }
-
-  if (filters.size || filters.color) {
-    where.variants = {
-      some: {
-        ...(filters.size ? { size: filters.size } : {}),
-        ...(filters.color ? { color: filters.color } : {}),
-      },
-    };
-  }
-
-  const [products, sizes, colors] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      include: { images: { orderBy: { position: "asc" }, take: 1 }, designer: true },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.productVariant.findMany({
-      where: { product: { categoryId: category.id } },
-      distinct: ["size"],
-      select: { size: true },
-    }),
-    prisma.productVariant.findMany({
-      where: { product: { categoryId: category.id } },
-      distinct: ["color"],
-      select: { color: true },
-    }),
-  ]);
+  const data = await getCategoryPageData(slug, filters);
+  if (!data) notFound();
+  const { category, products, sizes, colors } = data;
 
   function filterLink(next: Record<string, string | undefined>) {
-    const params = new URLSearchParams();
+    const qsParams = new URLSearchParams();
     const merged = { ...filters, ...next };
     for (const [k, v] of Object.entries(merged)) {
-      if (v) params.set(k, v);
+      if (v) qsParams.set(k, v);
     }
-    const qs = params.toString();
+    const qs = qsParams.toString();
     return `/category/${slug}${qs ? `?${qs}` : ""}`;
   }
 
@@ -88,11 +42,11 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           <Link href={filterLink({ size: undefined })} className={!filters.size ? "text-burgundy" : ""}>All</Link>
           {sizes.map((s) => (
             <Link
-              key={s.size}
-              href={filterLink({ size: s.size })}
-              className={filters.size === s.size ? "text-burgundy font-medium" : "hover:text-burgundy"}
+              key={s}
+              href={filterLink({ size: s })}
+              className={filters.size === s ? "text-burgundy font-medium" : "hover:text-burgundy"}
             >
-              {s.size}
+              {s}
             </Link>
           ))}
         </div>
@@ -101,11 +55,11 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           <Link href={filterLink({ color: undefined })} className={!filters.color ? "text-burgundy" : ""}>All</Link>
           {colors.map((c) => (
             <Link
-              key={c.color}
-              href={filterLink({ color: c.color })}
-              className={filters.color === c.color ? "text-burgundy font-medium" : "hover:text-burgundy"}
+              key={c}
+              href={filterLink({ color: c })}
+              className={filters.color === c ? "text-burgundy font-medium" : "hover:text-burgundy"}
             >
-              {c.color}
+              {c}
             </Link>
           ))}
         </div>
@@ -143,18 +97,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {products.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={{
-                slug: p.slug,
-                name: p.name,
-                basePriceCents: p.basePriceCents,
-                compareAtCents: p.compareAtCents,
-                readyToShip: p.readyToShip,
-                imageUrl: p.images[0]?.url ?? null,
-                designerName: p.designer?.name,
-              }}
-            />
+            <ProductCard key={p.slug} product={p} />
           ))}
         </div>
       )}

@@ -1,33 +1,9 @@
+/**
+ * Static-export-only header, swapped in for site-header.tsx by
+ * scripts/build-static.sh. No auth()/server actions — this build has no
+ * server runtime, so there's nowhere to sign in and no cart to view.
+ */
 import Link from "next/link";
-import { auth, signOut } from "@/auth";
-
-async function AccountLinks() {
-  const session = await auth();
-
-  return (
-    <>
-      <Link href="/cart" className="hover:text-burgundy">Cart</Link>
-      {session?.user ? (
-        <>
-          <Link href="/account/orders" className="hover:text-burgundy">My Orders</Link>
-          {session.user.role === "ADMIN" && (
-            <Link href="/admin/products" className="hover:text-burgundy">Admin</Link>
-          )}
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
-          >
-            <button type="submit" className="hover:text-burgundy">Sign out</button>
-          </form>
-        </>
-      ) : (
-        <Link href="/login" className="hover:text-burgundy">Sign in</Link>
-      )}
-    </>
-  );
-}
 
 export default function SiteHeader() {
   return (
@@ -44,7 +20,7 @@ export default function SiteHeader() {
           <Link href="/category/jewelry" className="hover:text-burgundy">Jewelry</Link>
         </nav>
         <div className="flex items-center gap-4 text-sm">
-          <AccountLinks />
+          <span className="text-charcoal/40 text-xs uppercase tracking-wide">Static Preview</span>
         </div>
       </div>
     </header>

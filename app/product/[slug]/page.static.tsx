@@ -1,9 +1,18 @@
+/**
+ * Static-export-only variant of the product detail page, swapped in for
+ * app/product/[slug]/page.tsx by scripts/build-static.sh. Has no import
+ * on AddToCartForm/app/actions (which require a server runtime) so the
+ * `next build --output export` bundler never has to resolve them.
+ */
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { centsToDisplay } from "@/lib/money";
 import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
-import { AddToCartForm } from "@/components/add-to-cart-form";
-import { getProductDetailData } from "@/lib/catalog";
+import { getProductDetailData, getAllStaticSlugs } from "@/lib/catalog";
+
+export async function generateStaticParams() {
+  return getAllStaticSlugs().productSlugs.map((slug) => ({ slug }));
+}
 
 export default async function ProductDetailPage({
   params,
@@ -13,9 +22,6 @@ export default async function ProductDetailPage({
   const { slug } = await params;
   const product = await getProductDetailData(slug);
   if (!product) notFound();
-
-  const sizes = [...new Set(product.variants.map((v) => v.size))];
-  const colors = [...new Set(product.variants.map((v) => v.color))];
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 gap-12">
@@ -54,13 +60,10 @@ export default async function ProductDetailPage({
           />
         </div>
 
-        <AddToCartForm
-          productId={product.id}
-          productSlug={product.slug}
-          variants={product.variants}
-          sizes={sizes}
-          colors={colors}
-        />
+        <div className="border border-charcoal/15 rounded-md p-4 text-sm text-charcoal/70">
+          This is a static UI preview — cart and checkout require the live deployment with a
+          connected database. See the README for how to run or deploy the full app.
+        </div>
       </div>
     </div>
   );

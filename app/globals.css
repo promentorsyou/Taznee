@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+:root {
+  --color-ivory: #faf6ef;
+  --color-charcoal: #232120;
+  --color-burgundy: #7a2135;
+  --color-forest: #2f4a3c;
+  --color-gold: #b8873a;
+  --background: var(--color-ivory);
+  --foreground: var(--color-charcoal);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ivory: var(--color-ivory);
+  --color-charcoal: var(--color-charcoal);
+  --color-burgundy: var(--color-burgundy);
+  --color-forest: var(--color-forest);
+  --color-gold: var(--color-gold);
+  --font-serif: var(--font-playfair), "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-sans: var(--font-inter), "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-serif);
+}

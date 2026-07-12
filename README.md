@@ -7,8 +7,10 @@ and weight-based international shipping pricing calculated at checkout.
 
 This repository is a working full-stack demo/reference implementation, not a production system.
 All product copy, designer names, and branding are original to this project. Placeholder product
-photography is served from [picsum.photos](https://picsum.photos) (a royalty-free placeholder
-image service) — nothing is scraped or copied from any third-party retailer.
+photography is real garment photos sourced from [Pexels](https://www.pexels.com) under the
+[Pexels License](https://www.pexels.com/license/) (free for commercial use, no attribution
+required) — nothing is scraped or copied from any third-party retailer or brand. For a real
+launch, replace these with actual product photography, as noted below.
 
 ## Stack
 

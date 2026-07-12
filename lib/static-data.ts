@@ -6,8 +6,15 @@
  * lib/catalog.ts instead.
  */
 
-function img(seed: string) {
-  return `https://picsum.photos/seed/${seed}/800/1000`;
+/**
+ * Free-license (Pexels License — free for commercial use, no attribution
+ * required: https://www.pexels.com/license/) stock photos of real garments,
+ * matched by category/color to each demo product. Not photos of any real
+ * Taznee inventory — this is placeholder photography for the demo catalog,
+ * documented as such in the README.
+ */
+function img(pexelsPhotoId: number) {
+  return `https://images.pexels.com/photos/${pexelsPhotoId}/pexels-photo-${pexelsPhotoId}.jpeg?auto=compress&cs=tinysrgb&w=800`;
 }
 
 export interface StaticCategory {
@@ -90,7 +97,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 6,
     transitMaxDays: 10,
     isFeatured: true,
-    images: [{ id: "img-1", url: img("jamdani-ivory-1"), altText: "Ivory Jamdani Saree" }],
+    images: [{ id: "img-1", url: img(10429558), altText: "Ivory Jamdani Saree" }],
     variants: variants(["Free Size"], ["Ivory", "Ivory/Gold"], "jamdani-ivory"),
   },
   {
@@ -108,7 +115,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 6,
     transitMaxDays: 10,
     isFeatured: true,
-    images: [{ id: "img-2", url: img("katan-maroon-1"), altText: "Maroon Katan Silk Saree" }],
+    images: [{ id: "img-2", url: img(11438526), altText: "Maroon Katan Silk Saree" }],
     variants: variants(["Free Size"], ["Maroon", "Deep Maroon"], "katan-maroon"),
   },
   {
@@ -126,7 +133,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-3", url: img("cotton-teal-1"), altText: "Teal Hand-Block Cotton Saree" }],
+    images: [{ id: "img-3", url: img(11810731), altText: "Teal Hand-Block Cotton Saree" }],
     variants: variants(["Free Size"], ["Teal", "Teal/Ivory"], "cotton-teal"),
   },
   {
@@ -144,7 +151,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: true,
-    images: [{ id: "img-4", url: img("3pc-rose-1"), altText: "Rose Embroidered Three-Piece" }],
+    images: [{ id: "img-4", url: img(20690508), altText: "Rose Embroidered Three-Piece" }],
     variants: variants(["S", "M", "L", "XL"], ["Rose", "Blush"], "3pc-rose"),
   },
   {
@@ -162,7 +169,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-5", url: img("3pc-navy-1"), altText: "Navy Chikankari Three-Piece" }],
+    images: [{ id: "img-5", url: img(1149962), altText: "Navy Chikankari Three-Piece" }],
     variants: variants(["S", "M", "L"], ["Navy"], "3pc-navy"),
   },
   {
@@ -180,7 +187,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-6", url: img("kurti-mustard-1"), altText: "Mustard Block-Print Kurti" }],
+    images: [{ id: "img-6", url: img(19586661), altText: "Mustard Block-Print Kurti" }],
     variants: variants(["S", "M", "L", "XL"], ["Mustard"], "kurti-mustard"),
   },
   {
@@ -198,7 +205,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: true,
-    images: [{ id: "img-7", url: img("panjabi-white-1"), altText: "White Eid Panjabi" }],
+    images: [{ id: "img-7", url: img(13222257), altText: "White Eid Panjabi" }],
     variants: variants(["S", "M", "L", "XL", "XXL"], ["White"], "panjabi-white"),
   },
   {
@@ -216,7 +223,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-8", url: img("panjabi-olive-1"), altText: "Olive Embroidered Panjabi" }],
+    images: [{ id: "img-8", url: img(35542192), altText: "Olive Embroidered Panjabi" }],
     variants: variants(["M", "L", "XL"], ["Olive"], "panjabi-olive"),
   },
   {
@@ -234,7 +241,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 6,
     transitMaxDays: 10,
     isFeatured: true,
-    images: [{ id: "img-9", url: img("lehenga-crimson-1"), altText: "Crimson Bridal Lehenga" }],
+    images: [{ id: "img-9", url: img(12411105), altText: "Crimson Bridal Lehenga" }],
     variants: variants(["S", "M", "L"], ["Crimson/Gold"], "lehenga-crimson"),
   },
   {
@@ -252,7 +259,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 6,
     transitMaxDays: 10,
     isFeatured: true,
-    images: [{ id: "img-10", url: img("sherwani-ivory-1"), altText: "Ivory Groom Sherwani" }],
+    images: [{ id: "img-10", url: img(28758797), altText: "Ivory Groom Sherwani" }],
     variants: variants(["M", "L", "XL"], ["Ivory/Gold"], "sherwani-ivory"),
   },
   {
@@ -270,7 +277,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-11", url: img("holud-yellow-1"), altText: "Marigold Holud Set" }],
+    images: [{ id: "img-11", url: img(15384798), altText: "Marigold Holud Set" }],
     variants: variants(["Free Size"], ["Marigold"], "holud-yellow"),
   },
   {
@@ -288,7 +295,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: true,
-    images: [{ id: "img-12", url: img("necklace-kundan-1"), altText: "Kundan Bridal Necklace Set" }],
+    images: [{ id: "img-12", url: img(9509032), altText: "Kundan Bridal Necklace Set" }],
     variants: variants(["One Size"], ["Gold"], "necklace-kundan"),
   },
   {
@@ -306,7 +313,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-13", url: img("bangles-gold-1"), altText: "Layered Gold Bangles" }],
+    images: [{ id: "img-13", url: img(10030285), altText: "Layered Gold Bangles" }],
     variants: variants(["2.4in", "2.6in", "2.8in"], ["Gold"], "bangles-gold"),
   },
   {
@@ -324,7 +331,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-14", url: img("earrings-jhumka-1"), altText: "Pearl Jhumka Earrings" }],
+    images: [{ id: "img-14", url: img(14523959), altText: "Pearl Jhumka Earrings" }],
     variants: variants(["One Size"], ["Gold/Pearl"], "earrings-jhumka"),
   },
   {
@@ -342,7 +349,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-15", url: img("dupatta-emerald-1"), altText: "Emerald Organza Dupatta" }],
+    images: [{ id: "img-15", url: img(8881954), altText: "Emerald Organza Dupatta" }],
     variants: variants(["One Size"], ["Emerald"], "dupatta-emerald"),
   },
   {
@@ -360,7 +367,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 5,
     transitMaxDays: 9,
     isFeatured: false,
-    images: [{ id: "img-16", url: img("fatua-indigo-1"), altText: "Indigo Linen Fatua" }],
+    images: [{ id: "img-16", url: img(8621669), altText: "Indigo Linen Fatua" }],
     variants: variants(["S", "M", "L", "XL"], ["Indigo"], "fatua-indigo"),
   },
   {
@@ -378,7 +385,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 6,
     transitMaxDays: 10,
     isFeatured: false,
-    images: [{ id: "img-17", url: img("tangail-sunset-1"), altText: "Sunset Tangail Saree" }],
+    images: [{ id: "img-17", url: img(36114634), altText: "Sunset Tangail Saree" }],
     variants: variants(["Free Size"], ["Sunset"], "tangail-sunset"),
   },
   {
@@ -396,7 +403,7 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     transitMinDays: 6,
     transitMaxDays: 10,
     isFeatured: false,
-    images: [{ id: "img-18", url: img("gown-blush-1"), altText: "Blush Reception Gown" }],
+    images: [{ id: "img-18", url: img(14472206), altText: "Blush Reception Gown" }],
     variants: variants(["S", "M", "L"], ["Blush"], "gown-blush"),
   },
 ];

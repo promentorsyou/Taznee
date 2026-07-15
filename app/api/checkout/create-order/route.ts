@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { calculateShippingCents, ShippingError } from "@/lib/shipping";
+import { ShippingError } from "@/lib/shipping";
+import { getShippingQuote, type ShippingQuote } from "@/lib/shipping-provider";
 import { SHIPPING_ZONES } from "@/lib/shipping-data";
 import { lineTotalCents, sumCents } from "@/lib/money";
 import { calculateDeliveryEstimate, mergeDeliveryEstimates } from "@/lib/delivery";
@@ -62,10 +63,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
   }
 
-  let shipping: ReturnType<typeof calculateShippingCents>;
+  let shipping: ShippingQuote;
   try {
     const itemWeights = cart.items.flatMap((i) => Array(i.quantity).fill(i.variant.product.weightGrams));
-    shipping = calculateShippingCents(SHIPPING_ZONES, state, itemWeights);
+    shipping = await getShippingQuote({
+      toAddress: { fullName, line1, city, state, postalCode },
+      itemWeightsGrams: itemWeights,
+      zones: SHIPPING_ZONES,
+    });
   } catch (err) {
     if (err instanceof ShippingError) {
       return NextResponse.json({ error: err.message }, { status: 400 });

@@ -51,6 +51,23 @@ Fill in:
   localhost:3000/api/webhooks/stripe` (Stripe CLI) and use the signing secret it prints.
 - `NEXT_PUBLIC_SITE_URL` — e.g. `http://localhost:3000`
 
+### 2b. Live shipping rates (optional)
+
+By default, checkout calculates shipping from a static weight/zone rate table
+(`lib/shipping-data.ts`) — no setup required. To use real carrier rates instead:
+
+1. Create an account at [easypost.com](https://www.easypost.com/) and grab a **test** API key
+   (starts `EZTK...`) to try it risk-free, or a production key when you're ready to go live.
+2. Set `EASYPOST_API_KEY` and the `SHIP_FROM_*` variables (your fulfillment origin address) in
+   `.env`.
+3. That's it — `/api/checkout/quote` and `/api/checkout/create-order` will automatically call
+   EasyPost for a live rate and fall back to the static table if the call fails or the key isn't
+   set. No code changes needed either way.
+
+EasyPost aggregates USPS/UPS/FedEx/DHL behind one API, so you don't need a separate account with
+each carrier to get started — though better rates usually come from negotiated carrier accounts
+once volume grows, which EasyPost also supports connecting.
+
 ### 3. Set up the database
 
 ```bash
@@ -186,8 +203,11 @@ This is a scoped demo build. The following are intentionally out of scope:
 
 - **Multi-vendor seller portal** — designers/vendors cannot log in to manage their own listings;
   all catalog data is seeded/admin-only.
-- **Live shipping carrier APIs** — shipping cost and transit time come from a static weight/zone
-  rate table (`lib/shipping-data.ts`), not a real carrier integration (e.g. DHL, FedEx).
+- **Live shipping carrier rates are wired up but optional** — `lib/shipping-provider.ts` calls
+  EasyPost (which aggregates USPS/UPS/FedEx/DHL) when `EASYPOST_API_KEY` is set, and always falls
+  back to the static weight/zone rate table (`lib/shipping-data.ts`) if it isn't configured, the
+  destination address is incomplete, or the live API call fails for any reason — checkout is
+  never blocked by a carrier-API outage. See "Live shipping rates" below to turn it on.
 - **Tax provider integration** — `Order.taxCents` exists in the schema but is always `0`; no
   sales tax calculation (e.g. Stripe Tax, Avalara) is wired up.
 - **Full admin CRUD** — `/admin/products` is read-only. There is no admin UI to create, edit,

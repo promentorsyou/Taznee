@@ -64,7 +64,13 @@ export function CheckoutClient({
       const res = await fetch("/api/checkout/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state: address.state }),
+        body: JSON.stringify({
+          fullName: address.fullName,
+          line1: address.line1,
+          city: address.city,
+          state: address.state,
+          postalCode: address.postalCode,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to calculate shipping");

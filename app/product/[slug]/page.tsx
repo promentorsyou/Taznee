@@ -1,9 +1,31 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { centsToDisplay } from "@/lib/money";
 import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
 import { AddToCartForm } from "@/components/add-to-cart-form";
 import { getProductDetailData } from "@/lib/catalog";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductDetailData(slug);
+  if (!product) return { title: "Product not found" };
+
+  const description = product.description.slice(0, 155);
+  return {
+    title: product.name,
+    description,
+    openGraph: {
+      title: product.name,
+      description,
+      images: product.images[0] ? [{ url: product.images[0].url }] : undefined,
+    },
+  };
+}
 
 export default async function ProductDetailPage({
   params,

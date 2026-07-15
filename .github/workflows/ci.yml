@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-typecheck-test-build:
+    runs-on: ubuntu-latest
+    env:
+      # Dummy values so the pipeline succeeds without real secrets — no
+      # database is queried at build time (see app/sitemap.ts) and no
+      # external API calls happen during validate/build/test.
+      DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci"
+      NEXTAUTH_SECRET: "ci-only-not-a-real-secret"
+      STRIPE_SECRET_KEY: "sk_test_ci_placeholder"
+      STRIPE_PUBLISHABLE_KEY: "pk_test_ci_placeholder"
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Validate Prisma schema
+        run: npx prisma validate
+
+      - name: Lint
+        run: npx eslint .
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Production build
+        run: npm run build
+
+      - name: Static export build (GitHub Pages preview)
+        run: ./scripts/build-static.sh
+        env:
+          GITHUB_PAGES_REPO: Taznee

@@ -43,9 +43,12 @@ Fill in:
 - `NEXTAUTH_SECRET` — any random string (`openssl rand -base64 32`)
 - `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` — Stripe **test mode** keys from your Stripe
   dashboard (https://dashboard.stripe.com/test/apikeys)
-- `STRIPE_WEBHOOK_SECRET` — only required if you wire up a real webhook endpoint (the demo
-  checkout flow also reconciles payment status directly on the confirmation page so it works
-  without a public webhook URL)
+- `STRIPE_WEBHOOK_SECRET` — required for `/api/webhooks/stripe` to accept requests (it always
+  verifies the Stripe signature and rejects unsigned/unconfigured requests — there is no
+  fallback that trusts an unverified payload). The demo checkout flow also reconciles payment
+  status directly on the confirmation page, so local development works without a public webhook
+  URL even before you set this. To test the webhook locally, run `stripe listen --forward-to
+  localhost:3000/api/webhooks/stripe` (Stripe CLI) and use the signing secret it prints.
 - `NEXT_PUBLIC_SITE_URL` — e.g. `http://localhost:3000`
 
 ### 3. Set up the database
@@ -105,12 +108,18 @@ downloads, so the e2e suite was verified for syntax and correct test discovery
 ## Project structure
 
 - `app/` — Next.js App Router pages and API routes
+  - `error.tsx` / `global-error.tsx` / `not-found.tsx` — error boundaries and 404 page
+  - `robots.ts` / `sitemap.ts` — SEO crawl directives and sitemap (DB-backed; `*.static.ts`
+    variants exist for the GitHub Pages build, see below)
 - `components/` — shared React components (server + client)
 - `lib/` — pure business logic (`money.ts`, `shipping.ts`, `delivery.ts`, `shipping-data.ts`) plus
-  infra singletons (`prisma.ts`, `stripe.ts`)
+  infra singletons (`prisma.ts`, `stripe.ts`) and the shared catalog data layer (`catalog.ts`)
 - `prisma/schema.prisma` — data model
 - `prisma/seed.ts` — demo data seed script
 - `e2e/` — Playwright end-to-end tests
+- `.github/workflows/ci.yml` — lint, typecheck, unit tests, and both production builds on every
+  push/PR
+- `.github/workflows/deploy-pages.yml` — publishes the static preview to GitHub Pages
 
 ## Static UI preview (GitHub Pages)
 
@@ -146,6 +155,31 @@ variants of the header, category, and product pages that don't reference
 auth/server actions — then always restores everything afterward, even on
 build failure.
 
+## Hardening notes
+
+The following were addressed in a security/reliability pass on top of the initial build:
+
+- **Stripe webhook signature is always verified** — an earlier version had a fallback that
+  trusted unsigned request bodies when `STRIPE_WEBHOOK_SECRET` wasn't set, which would have let
+  anyone POST a fake `payment_intent.succeeded` event and mark an arbitrary order as paid. The
+  endpoint now rejects any request without a valid signature.
+- **Checkout address input is validated server-side** with Zod (state as a 2-letter code, ZIP as
+  a valid US postal code format) instead of trivial truthy checks, and address/order/order-item
+  creation happens inside a single `prisma.$transaction` so a mid-request failure can never leave
+  an orphaned `Address` row with no `Order`.
+- **PaymentIntent creation uses an idempotency key** (`order-<orderId>`) so a client retry after a
+  network blip can't create a duplicate charge for the same order.
+- **Security response headers** (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy`) are set on the live deployment.
+- **Error boundaries** (`app/error.tsx`, `app/global-error.tsx`) and a branded 404 page
+  (`app/not-found.tsx`) replace Next.js's default error screens.
+- **SEO**: per-page `generateMetadata` (title/description/Open Graph) on product and category
+  pages, `robots.ts`, and a DB-backed `sitemap.ts` (with a static-fixture variant for the GitHub
+  Pages build).
+- **CI** (`.github/workflows/ci.yml`) now runs lint, typecheck, unit tests, the production build,
+  and the static-export build on every push and pull request — so none of the above can silently
+  regress.
+
 ## Known Limitations / Not Yet Implemented
 
 This is a scoped demo build. The following are intentionally out of scope:
@@ -158,18 +192,23 @@ This is a scoped demo build. The following are intentionally out of scope:
   sales tax calculation (e.g. Stripe Tax, Avalara) is wired up.
 - **Full admin CRUD** — `/admin/products` is read-only. There is no admin UI to create, edit,
   deactivate, or restock products/categories/designers.
+- **Inventory reservation** — checkout does not decrement or reserve `Inventory.quantity`, so
+  concurrent orders for the same limited variant can oversell. A production deployment needs a
+  reservation/lock step in `create-order` before creating the PaymentIntent.
 - **Email/SMS notifications** — no order confirmation emails, shipping updates, or password
   reset flows.
+- **Rate limiting** — `/api/register` and other public endpoints have no rate limiting; add one
+  (e.g. Upstash Ratelimit, Vercel's built-in protections) before a real launch.
 - **Search service** — category filtering exists, but there is no full-text/typo-tolerant product
   search (e.g. Algolia, Meilisearch, Postgres full-text search).
 - **CMS** — homepage and category copy are hardcoded in the app, not editable via a CMS.
 - **Internationalization (i18n)** — English only; USD only.
 - **Visual regression tests** — only unit tests (Vitest) and functional e2e tests (Playwright)
   exist; no screenshot/visual diffing.
-- **CI workflows** — no GitHub Actions or other CI pipeline is configured in this repository.
 - **Wishlist UI** — the `Wishlist`/`WishlistItem` models exist in the schema for future use but
   there is no wishlist page or "save for later" UI yet.
-- **Stripe webhook is best-effort** — the checkout confirmation page reconciles payment status
-  directly with Stripe for demo convenience (no public webhook URL required locally). A
-  production deployment should rely on `/api/webhooks/stripe` as the source of truth and disable
-  the client-side reconciliation fallback.
+- **Stripe webhook still needs a public URL configured in production** — the checkout
+  confirmation page additionally reconciles payment status directly with Stripe for local/demo
+  convenience (no public webhook URL required to test locally), but a real deployment should
+  configure the Stripe webhook endpoint and rely on `/api/webhooks/stripe` as the source of
+  truth.

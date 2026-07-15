@@ -4,6 +4,7 @@
  * on AddToCartForm/app/actions (which require a server runtime) so the
  * `next build --output export` bundler never has to resolve them.
  */
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { centsToDisplay } from "@/lib/money";
@@ -12,6 +13,27 @@ import { getProductDetailData, getAllStaticSlugs } from "@/lib/catalog";
 
 export async function generateStaticParams() {
   return getAllStaticSlugs().productSlugs.map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductDetailData(slug);
+  if (!product) return { title: "Product not found" };
+
+  const description = product.description.slice(0, 155);
+  return {
+    title: product.name,
+    description,
+    openGraph: {
+      title: product.name,
+      description,
+      images: product.images[0] ? [{ url: product.images[0].url }] : undefined,
+    },
+  };
 }
 
 export default async function ProductDetailPage({

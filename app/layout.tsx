@@ -16,10 +16,26 @@ const inter = Inter({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://taznee.example.com";
+const defaultTitle = "Taznee — Bangladeshi Fashion, Delivered to the US";
+const defaultDescription =
+  "Taznee brings original sarees, salwar kameez, panjabi, wedding wear, and jewelry from Bangladeshi designers directly to customers across the United States.";
+
 export const metadata: Metadata = {
-  title: "Taznee — Bangladeshi Fashion, Delivered to the US",
-  description:
-    "Taznee brings original sarees, salwar kameez, panjabi, wedding wear, and jewelry from Bangladeshi designers directly to customers across the United States.",
+  metadataBase: new URL(siteUrl),
+  title: { default: defaultTitle, template: "%s | Taznee" },
+  description: defaultDescription,
+  openGraph: {
+    title: defaultTitle,
+    description: defaultDescription,
+    siteName: "Taznee",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: defaultTitle,
+    description: defaultDescription,
+  },
 };
 
 export default function RootLayout({

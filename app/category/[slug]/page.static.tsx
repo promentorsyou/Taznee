@@ -4,12 +4,27 @@
  * cannot statically render a Server Component that reads `searchParams`,
  * so this version drops the filter UI and just lists the category.
  */
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/product-card";
 import { getCategoryPageData, getAllStaticSlugs } from "@/lib/catalog";
 
 export async function generateStaticParams() {
   return getAllStaticSlugs().categorySlugs.map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getCategoryPageData(slug, {});
+  if (!data) return { title: "Category not found" };
+  return {
+    title: data.category.name,
+    description: data.category.description ?? undefined,
+  };
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {

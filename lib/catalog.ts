@@ -4,6 +4,7 @@
  * in-memory fixture in lib/static-data.ts instead, since that build has
  * no database and no server runtime.
  */
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import {
@@ -70,7 +71,7 @@ export interface CategoryFilters {
   readyToShip?: string;
 }
 
-export async function getCategoryPageData(slug: string, filters: CategoryFilters) {
+export const getCategoryPageData = cache(async (slug: string, filters: CategoryFilters) => {
   if (STATIC_EXPORT) {
     const category = getStaticCategoryBySlug(slug);
     if (!category) return null;
@@ -172,9 +173,9 @@ export async function getCategoryPageData(slug: string, filters: CategoryFilters
     sizes: sizes.map((s) => s.size),
     colors: colors.map((c) => c.color),
   };
-}
+});
 
-export async function getProductDetailData(slug: string) {
+export const getProductDetailData = cache(async (slug: string) => {
   if (STATIC_EXPORT) {
     const product = getStaticProductBySlug(slug);
     if (!product) return null;
@@ -232,7 +233,7 @@ export async function getProductDetailData(slug: string) {
       inStock: (v.inventory?.quantity ?? 0) > 0,
     })),
   };
-}
+});
 
 export function getAllStaticSlugs() {
   return {

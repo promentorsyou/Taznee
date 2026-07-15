@@ -21,6 +21,7 @@ SWAP_FILES=(
   "app/product/[slug]/page.tsx:app/product/[slug]/page.static.tsx"
   "app/category/[slug]/page.tsx:app/category/[slug]/page.static.tsx"
   "components/site-header.tsx:components/site-header.static.tsx"
+  "app/sitemap.ts:app/sitemap.static.ts"
 )
 STASH_DIR=".static-build-stash"
 

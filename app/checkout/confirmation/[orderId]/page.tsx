@@ -33,10 +33,6 @@ export default async function ConfirmationPage({
           data: { status: "SUCCEEDED" },
         });
         await prisma.order.update({ where: { id: order.id }, data: { status: "PAID" } });
-        await prisma.cart.updateMany({
-          where: { userId: session.user.id },
-          data: {},
-        });
         await prisma.cartItem.deleteMany({ where: { cart: { userId: session.user.id } } });
         order.status = "PAID";
       }

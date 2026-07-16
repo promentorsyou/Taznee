@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: siteUrl, changeFrequency: "daily", priority: 1 },
+    { url: `${siteUrl}/returns`, changeFrequency: "monthly", priority: 0.4 },
     ...categorySlugs.map((slug) => ({
       url: `${siteUrl}/category/${slug}`,
       changeFrequency: "daily" as const,

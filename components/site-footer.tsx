@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 export default function SiteFooter() {
   return (
     <footer className="border-t border-charcoal/10 mt-16 bg-charcoal text-ivory/90">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid gap-8 sm:grid-cols-3 text-sm">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4 text-sm">
         <div>
           <div className="font-serif text-xl text-gold mb-2">Taznee</div>
           <p className="text-ivory/70">
@@ -15,6 +17,21 @@ export default function SiteFooter() {
             <li>Every order ships internationally from Bangladesh.</li>
             <li>Delivery estimates are shown on every product page.</li>
             <li>Ready-to-ship items skip the tailoring queue.</li>
+          </ul>
+        </div>
+        <div>
+          <div className="font-medium mb-2 text-gold">Customer Care</div>
+          <ul className="space-y-1 text-ivory/70">
+            <li>
+              <Link href="/returns" className="hover:text-ivory hover:underline">
+                Returns &amp; Refunds
+              </Link>
+            </li>
+            <li>
+              <Link href="/account/orders" className="hover:text-ivory hover:underline">
+                Order History
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

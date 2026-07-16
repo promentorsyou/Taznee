@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { fetchJson, FetchJsonError } from "@/lib/fetch-json";
+
+const inputClass =
+  "w-full border border-charcoal/20 rounded px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-burgundy/40";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -17,23 +21,23 @@ export function RegisterForm() {
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error ?? "Registration failed");
+    try {
+      await fetchJson("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      await signIn("credentials", { email, password, redirect: false });
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof FetchJsonError
+          ? err.message
+          : "Registration failed. Please try again.",
+      );
       setLoading(false);
-      return;
     }
-
-    await signIn("credentials", { email, password, redirect: false });
-    setLoading(false);
-    router.push("/");
-    router.refresh();
   }
 
   return (
@@ -41,7 +45,8 @@ export function RegisterForm() {
       <input
         placeholder="Full name"
         required
-        className="w-full border border-charcoal/20 rounded px-3 py-2"
+        autoComplete="name"
+        className={inputClass}
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
@@ -49,7 +54,9 @@ export function RegisterForm() {
         type="email"
         placeholder="Email"
         required
-        className="w-full border border-charcoal/20 rounded px-3 py-2"
+        autoComplete="email"
+        inputMode="email"
+        className={inputClass}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
@@ -58,15 +65,16 @@ export function RegisterForm() {
         placeholder="Password (min 8 characters)"
         required
         minLength={8}
-        className="w-full border border-charcoal/20 rounded px-3 py-2"
+        autoComplete="new-password"
+        className={inputClass}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      {error && <p className="text-burgundy text-sm">{error}</p>}
+      {error && <p className="text-burgundy text-sm" role="alert">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-burgundy text-ivory py-2.5 rounded-md hover:bg-burgundy/90 transition disabled:opacity-40"
+        className="w-full bg-burgundy text-ivory py-3 rounded-md hover:bg-burgundy/90 transition disabled:opacity-40"
       >
         {loading ? "Creating account…" : "Create account"}
       </button>

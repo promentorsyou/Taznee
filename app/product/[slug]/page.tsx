@@ -42,9 +42,16 @@ export default async function ProductDetailPage({
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 gap-12">
       <div className="grid grid-cols-2 gap-3">
-        {product.images.map((img) => (
+        {product.images.map((img, idx) => (
           <div key={img.id} className="relative aspect-[3/4] rounded-md overflow-hidden bg-charcoal/5 first:col-span-2">
-            <Image src={img.url} alt={img.altText ?? product.name} fill className="object-cover" sizes="50vw" />
+            <Image
+              src={img.url}
+              alt={img.altText ?? product.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority={idx === 0}
+            />
           </div>
         ))}
       </div>

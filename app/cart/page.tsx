@@ -40,8 +40,8 @@ export default async function CartPage() {
             {items.map((item) => {
               const unitPrice = item.variant.priceCents ?? item.variant.product.basePriceCents;
               return (
-                <div key={item.id} className="flex items-center gap-4 py-4">
-                  <div className="flex-1">
+                <div key={item.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 py-4">
+                  <div className="min-w-0 flex-1 basis-52">
                     <p className="font-medium">{item.variant.product.name}</p>
                     <p className="text-sm text-charcoal/50">
                       {item.variant.size} / {item.variant.color}
@@ -50,24 +50,28 @@ export default async function CartPage() {
                   </div>
                   <form action={updateCartItemAction} className="flex items-center gap-2">
                     <input type="hidden" name="itemId" value={item.id} />
-                    <input
-                      type="number"
-                      name="quantity"
-                      defaultValue={item.quantity}
-                      min={0}
-                      className="w-16 border border-charcoal/20 rounded px-2 py-1"
-                    />
-                    <button type="submit" className="text-sm text-charcoal/60 hover:text-burgundy">
+                    <label>
+                      <span className="sr-only">Quantity for {item.variant.product.name}</span>
+                      <input
+                        type="number"
+                        name="quantity"
+                        defaultValue={item.quantity}
+                        min={0}
+                        inputMode="numeric"
+                        className="w-16 border border-charcoal/20 rounded px-2 py-2 text-base"
+                      />
+                    </label>
+                    <button type="submit" className="px-2 py-2 text-sm text-charcoal/60 hover:text-burgundy">
                       Update
                     </button>
                   </form>
                   <form action={removeCartItemAction}>
                     <input type="hidden" name="itemId" value={item.id} />
-                    <button type="submit" className="text-sm text-burgundy hover:underline">
+                    <button type="submit" className="px-2 py-2 text-sm text-burgundy hover:underline">
                       Remove
                     </button>
                   </form>
-                  <div className="w-24 text-right font-medium">
+                  <div className="w-24 text-right font-medium ml-auto">
                     {centsToDisplay(lineTotalCents(unitPrice, item.quantity))}
                   </div>
                 </div>

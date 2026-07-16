@@ -46,7 +46,7 @@ export function AddToCartForm({
                 type="button"
                 key={s}
                 onClick={() => setSize(s)}
-                className={`px-3 py-1.5 rounded border text-sm ${
+                className={`px-4 py-2.5 rounded border text-sm min-w-11 ${
                   size === s ? "border-burgundy text-burgundy" : "border-charcoal/20"
                 }`}
               >
@@ -66,7 +66,7 @@ export function AddToCartForm({
                 type="button"
                 key={c}
                 onClick={() => setColor(c)}
-                className={`px-3 py-1.5 rounded border text-sm ${
+                className={`px-4 py-2.5 rounded border text-sm min-w-11 ${
                   color === c ? "border-burgundy text-burgundy" : "border-charcoal/20"
                 }`}
               >
@@ -84,7 +84,8 @@ export function AddToCartForm({
           name="quantity"
           defaultValue={1}
           min={1}
-          className="border border-charcoal/20 rounded px-3 py-1.5 w-20"
+          className="border border-charcoal/20 rounded px-3 py-2.5 w-20 text-base"
+          inputMode="numeric"
         />
       </div>
 

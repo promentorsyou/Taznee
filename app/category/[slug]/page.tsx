@@ -51,7 +51,9 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       <h1 className="font-serif text-3xl mb-2">{category.name}</h1>
       {category.description && <p className="text-charcoal/60 mb-8 max-w-2xl">{category.description}</p>}
 
-      <div className="flex flex-wrap gap-6 mb-8 text-sm items-center">
+      {/* leading-8 gives each filter link a ~32px-tall line box so the tap
+          targets are comfortable on touch screens without changing layout. */}
+      <div className="flex flex-wrap gap-x-6 gap-y-2 mb-8 text-sm leading-8 items-center">
         <div className="flex items-center gap-2">
           <span className="text-charcoal/50">Size:</span>
           <Link href={filterLink({ size: undefined })} className={!filters.size ? "text-burgundy" : ""}>All</Link>

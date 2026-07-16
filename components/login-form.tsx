@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
+const inputClass =
+  "w-full border border-charcoal/20 rounded px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-burgundy/40";
+
 export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -17,14 +20,19 @@ export function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const res = await signIn("credentials", { email, password, redirect: false });
-    setLoading(false);
-    if (res?.error) {
-      setError("Invalid email or password");
-      return;
+    try {
+      const res = await signIn("credentials", { email, password, redirect: false });
+      if (res?.error) {
+        setError("Invalid email or password");
+        setLoading(false);
+        return;
+      }
+      router.push(callbackUrl);
+      router.refresh();
+    } catch {
+      setError("We couldn't reach the server. Please check your connection and try again.");
+      setLoading(false);
     }
-    router.push(callbackUrl);
-    router.refresh();
   }
 
   return (
@@ -33,7 +41,9 @@ export function LoginForm() {
         type="email"
         placeholder="Email"
         required
-        className="w-full border border-charcoal/20 rounded px-3 py-2"
+        autoComplete="email"
+        inputMode="email"
+        className={inputClass}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
@@ -41,15 +51,16 @@ export function LoginForm() {
         type="password"
         placeholder="Password"
         required
-        className="w-full border border-charcoal/20 rounded px-3 py-2"
+        autoComplete="current-password"
+        className={inputClass}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      {error && <p className="text-burgundy text-sm">{error}</p>}
+      {error && <p className="text-burgundy text-sm" role="alert">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-burgundy text-ivory py-2.5 rounded-md hover:bg-burgundy/90 transition disabled:opacity-40"
+        className="w-full bg-burgundy text-ivory py-3 rounded-md hover:bg-burgundy/90 transition disabled:opacity-40"
       >
         {loading ? "Signing in…" : "Sign in"}
       </button>

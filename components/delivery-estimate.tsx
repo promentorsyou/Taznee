@@ -28,7 +28,7 @@ export function DeliveryEstimateBadge({
       </p>
       <p className="text-charcoal/60 text-xs mt-0.5">
         {readyToShip
-          ? "Ready to ship — no tailoring wait."
+          ? "Ready to ship — no tailoring wait, "
           : `Handcrafted to order: ${processingMinDays}-${processingMaxDays} business days to prepare, `}
         {`then ${transitMinDays}-${transitMaxDays} business days international transit.`}
       </p>

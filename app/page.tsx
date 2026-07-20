@@ -1,40 +1,65 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { getHomepageData } from "@/lib/catalog";
 
 export const revalidate = 60;
 
+// Editorial hero photo (Pexels License — free for commercial use, no
+// attribution required). Placeholder photography for the demo; swap for
+// real Taznee campaign imagery before launch.
+const HERO_IMAGE =
+  "https://images.pexels.com/photos/9419032/pexels-photo-9419032.jpeg?auto=compress&cs=tinysrgb&w=1200";
+
 export default async function HomePage() {
   const { categories, featured } = await getHomepageData();
 
   return (
     <div>
-      <section className="relative bg-charcoal text-ivory">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
-          <p className="uppercase tracking-[0.2em] text-gold text-xs mb-4">
-            Dhaka to Doorstep, Across the USA
-          </p>
-          <h1 className="font-serif text-4xl sm:text-6xl max-w-2xl leading-tight">
-            Original Bangladeshi fashion, made for you.
-          </h1>
-          <p className="mt-6 max-w-xl text-ivory/75">
-            Taznee partners with Bangladeshi designers to bring hand-embroidered sarees, salwar
-            kameez, panjabi, wedding wear, and jewelry directly to customers across the United
-            States — with transparent delivery estimates on every order.
-          </p>
-          <div className="mt-8 flex gap-4">
-            <Link
-              href="/category/sarees"
-              className="bg-burgundy text-ivory px-6 py-3 rounded-md hover:bg-burgundy/90 transition"
-            >
-              Shop Sarees
-            </Link>
-            <Link
-              href="/category/wedding"
-              className="border border-ivory/30 px-6 py-3 rounded-md hover:bg-ivory/10 transition"
-            >
-              Shop Wedding
-            </Link>
+      <section className="relative bg-charcoal text-ivory overflow-hidden">
+        {/* Desktop-only hero image fills the right half; a left-to-right
+            gradient fades it into the charcoal so the headline stays
+            legible. Hidden on mobile, where the compact dark block reads
+            better than a letterboxed photo. */}
+        <div className="hidden md:block absolute inset-y-0 right-0 w-1/2" aria-hidden="true">
+          <Image
+            src={HERO_IMAGE}
+            alt=""
+            fill
+            priority
+            sizes="50vw"
+            className="object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal/60 to-charcoal/10" />
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+          <div className="md:max-w-[60%]">
+            <p className="uppercase tracking-[0.2em] text-gold text-xs mb-4">
+              Dhaka to Doorstep, Across the USA
+            </p>
+            <h1 className="font-serif text-4xl sm:text-6xl leading-tight">
+              Original Bangladeshi fashion, made for you.
+            </h1>
+            <p className="mt-6 max-w-xl text-ivory/75">
+              Taznee partners with Bangladeshi designers to bring hand-embroidered sarees, salwar
+              kameez, panjabi, wedding wear, and jewelry directly to customers across the United
+              States — with transparent delivery estimates on every order.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/category/sarees"
+                className="bg-burgundy text-ivory px-6 py-3 rounded-md hover:bg-burgundy/90 transition"
+              >
+                Shop Sarees
+              </Link>
+              <Link
+                href="/category/wedding"
+                className="border border-ivory/30 px-6 py-3 rounded-md hover:bg-ivory/10 transition"
+              >
+                Shop Wedding
+              </Link>
+            </div>
           </div>
         </div>
       </section>

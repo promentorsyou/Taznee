@@ -25,8 +25,8 @@ exists and deploys to Vercel. Static-only limitations are intentional. Two build
 - [x] Visible breadcrumbs component on product + category pages.
 - [x] Fix footer "Order History" 404 on the static build (conditional on live app).
 - [x] LAUNCH_CONFIG.md handoff doc (env vars, Stripe, DB, email, domain, analytics, image reqs, shipping/duties decisions, legal-owner approvals).
-- [ ] Google Merchant Center product feed at `/feed.xml` (live app only; excluded from static build).
-- [ ] Automated internal-link checker (crawl built static `out/`, fail on broken nav/footer links); wire into CI.
+- [x] Google Merchant Center product feed at `/feed.xml` (live app only; excluded from static build).
+- [x] Automated internal-link checker (crawl built static `out/`, fail on broken nav/footer links); wire into CI.
 - [ ] Cart icon with live item count in the header (live app).
 - [ ] Category sorting (price asc/desc, newest) alongside existing filters, URL-driven.
 - [ ] Reviews data model (schema) + verified-only review UI with honest empty state (NO fake reviews).

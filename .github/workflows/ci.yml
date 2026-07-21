@@ -52,3 +52,6 @@ jobs:
         run: ./scripts/build-static.sh
         env:
           GITHUB_PAGES_REPO: Taznee
+
+      - name: Check internal links
+        run: node scripts/check-links.mjs out

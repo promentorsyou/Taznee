@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { absoluteUrl } from "@/lib/seo";
+import { STATIC_EXPORT } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Returns & Refunds",
@@ -127,11 +128,17 @@ export default function ReturnsPage() {
 
       <div className="mt-12 border-t border-charcoal/10 pt-6 text-sm text-charcoal/60">
         <p>
-          Questions about an order? Visit your{" "}
-          <Link href="/account/orders" className="text-burgundy hover:underline">
-            order history
-          </Link>{" "}
-          or email{" "}
+          Questions about an order?{" "}
+          {!STATIC_EXPORT && (
+            <>
+              Visit your{" "}
+              <Link href="/account/orders" className="text-burgundy hover:underline">
+                order history
+              </Link>{" "}
+              or email{" "}
+            </>
+          )}
+          {STATIC_EXPORT && <>Email{" "}</>}
           <a href={`mailto:${RETURNS_EMAIL}`} className="text-burgundy hover:underline">
             {RETURNS_EMAIL}
           </a>

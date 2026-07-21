@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { absoluteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Returns & Refunds",
   description:
     "Taznee's returns and refunds policy for orders shipped from Bangladesh to the United States — return window, eligibility, who pays return shipping, and how refunds are processed.",
+  alternates: { canonical: absoluteUrl("/returns") },
 };
 
 // Business rules, kept as constants so they can later be surfaced in the

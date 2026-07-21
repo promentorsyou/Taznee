@@ -39,6 +39,10 @@ jobs:
         run: ./scripts/build-static.sh
         env:
           GITHUB_PAGES_REPO: ${{ github.event.repository.name }}
+          # Canonical/sitemap/JSON-LD URLs for the GitHub Pages preview.
+          # NEXT_PUBLIC_INDEXABLE is intentionally left unset, so the
+          # preview stays noindex until the owner launches on a real domain.
+          NEXT_PUBLIC_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

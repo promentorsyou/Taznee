@@ -194,7 +194,7 @@ export const getProductDetailData = cache(async (slug: string) => {
       transitMinDays: product.transitMinDays,
       transitMaxDays: product.transitMaxDays,
       images: product.images,
-      category: { name: category?.name ?? "" },
+      category: { name: category?.name ?? "", slug: product.categorySlug },
       designer: designer ? { name: designer.name } : null,
       variants: product.variants.map((v) => ({ id: v.id, size: v.size, color: v.color, inStock: v.inStock })),
     };
@@ -224,7 +224,7 @@ export const getProductDetailData = cache(async (slug: string) => {
     transitMinDays: product.transitMinDays,
     transitMaxDays: product.transitMaxDays,
     images: product.images,
-    category: { name: product.category.name },
+    category: { name: product.category.name, slug: product.category.slug },
     designer: product.designer ? { name: product.designer.name } : null,
     variants: product.variants.map((v) => ({
       id: v.id,

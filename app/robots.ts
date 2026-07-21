@@ -1,9 +1,16 @@
 import type { MetadataRoute } from "next";
+import { IS_INDEXABLE, SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-static";
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://taznee.example.com";
+  // Until the owner opts into indexing (NEXT_PUBLIC_INDEXABLE=true), block
+  // all crawlers so the demo / static preview and any staging deploy are
+  // never indexed or surfaced in search.
+  if (!IS_INDEXABLE) {
+    return { rules: [{ userAgent: "*", disallow: "/" }] };
+  }
+
   return {
     rules: [
       {
@@ -12,6 +19,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/cart", "/checkout", "/account", "/admin", "/api"],
       },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { STATIC_EXPORT } from "@/lib/catalog";
 
 export default function SiteFooter() {
   return (
@@ -27,11 +28,15 @@ export default function SiteFooter() {
                 Returns &amp; Refunds
               </Link>
             </li>
-            <li>
-              <Link href="/account/orders" className="hover:text-ivory hover:underline">
-                Order History
-              </Link>
-            </li>
+            {/* Order History needs auth + the live app; it doesn't exist in
+                the static preview build, so linking it there would 404. */}
+            {!STATIC_EXPORT && (
+              <li>
+                <Link href="/account/orders" className="hover:text-ivory hover:underline">
+                  Order History
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
         <div>

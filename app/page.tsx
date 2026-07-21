@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { getHomepageData } from "@/lib/catalog";
+import { absoluteUrl } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  alternates: { canonical: absoluteUrl("/") },
+};
 
 // Editorial hero photo (Pexels License — free for commercial use, no
 // attribution required). Placeholder photography for the demo; swap for

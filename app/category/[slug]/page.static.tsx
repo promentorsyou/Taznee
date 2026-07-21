@@ -7,7 +7,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/product-card";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { JsonLd } from "@/components/json-ld";
 import { getCategoryPageData, getAllStaticSlugs } from "@/lib/catalog";
+import { absoluteUrl, breadcrumbSchema, type BreadcrumbItem } from "@/lib/seo";
 
 export async function generateStaticParams() {
   return getAllStaticSlugs().categorySlugs.map((slug) => ({ slug }));
@@ -24,6 +27,7 @@ export async function generateMetadata({
   return {
     title: data.category.name,
     description: data.category.description ?? undefined,
+    alternates: { canonical: absoluteUrl(`/category/${slug}`) },
   };
 }
 
@@ -34,8 +38,15 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   if (!data) notFound();
   const { category, products } = data;
 
+  const crumbs: BreadcrumbItem[] = [
+    { name: "Home", path: "/" },
+    { name: category.name, path: `/category/${slug}` },
+  ];
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <JsonLd data={breadcrumbSchema(crumbs)} />
+      <Breadcrumbs items={crumbs} />
       <h1 className="font-serif text-3xl mb-2">{category.name}</h1>
       {category.description && <p className="text-charcoal/60 mb-8 max-w-2xl">{category.description}</p>}
       <p className="text-xs text-charcoal/40 mb-8">

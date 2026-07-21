@@ -9,7 +9,10 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { centsToDisplay } from "@/lib/money";
 import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { JsonLd } from "@/components/json-ld";
 import { getProductDetailData, getAllStaticSlugs } from "@/lib/catalog";
+import { productBreadcrumbs, productJsonLd, productMetadata } from "@/lib/product-seo";
 
 export async function generateStaticParams() {
   return getAllStaticSlugs().productSlugs.map((slug) => ({ slug }));
@@ -23,17 +26,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductDetailData(slug);
   if (!product) return { title: "Product not found" };
-
-  const description = product.description.slice(0, 155);
-  return {
-    title: product.name,
-    description,
-    openGraph: {
-      title: product.name,
-      description,
-      images: product.images[0] ? [{ url: product.images[0].url }] : undefined,
-    },
-  };
+  return productMetadata(product);
 }
 
 export default async function ProductDetailPage({
@@ -46,7 +39,12 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 gap-12">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      {productJsonLd(product).map((schema, i) => (
+        <JsonLd key={i} data={schema} />
+      ))}
+      <Breadcrumbs items={productBreadcrumbs(product)} />
+      <div className="grid md:grid-cols-2 gap-12">
       <div className="grid grid-cols-2 gap-3">
         {product.images.map((img, idx) => (
           <div key={img.id} className="relative aspect-[3/4] rounded-md overflow-hidden bg-charcoal/5 first:col-span-2">
@@ -93,6 +91,7 @@ export default async function ProductDetailPage({
           This is a static UI preview — cart and checkout require the live deployment with a
           connected database. See the README for how to run or deploy the full app.
         </div>
+      </div>
       </div>
     </div>
   );

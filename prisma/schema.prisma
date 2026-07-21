@@ -35,6 +35,7 @@ model User {
   cart      Cart?
   wishlist  Wishlist?
   orders    Order[]
+  reviews   Review[]
 }
 
 model Account {
@@ -143,6 +144,7 @@ model Product {
   designer Designer?        @relation(fields: [designerId], references: [id])
   images   ProductImage[]
   variants ProductVariant[]
+  reviews  Review[]
 }
 
 model ProductImage {
@@ -320,4 +322,36 @@ model ShippingRate {
   transitMaxDays Int
 
   zone ShippingZone @relation(fields: [shippingZoneId], references: [id], onDelete: Cascade)
+}
+
+// ---------- Reviews ----------
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Customer product reviews. Only APPROVED reviews are ever displayed or
+/// counted toward an aggregate rating — there is no seeded/placeholder
+/// review data. `verifiedPurchase` is set when the reviewer has a paid
+/// order containing the product. Moderation defaults to PENDING.
+model Review {
+  id               String       @id @default(cuid())
+  productId        String
+  userId           String
+  rating           Int // 1..5
+  title            String?
+  body             String
+  verifiedPurchase Boolean      @default(false)
+  status           ReviewStatus @default(PENDING)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // One review per user per product.
+  @@unique([productId, userId])
+  @@index([productId, status])
 }

@@ -83,6 +83,8 @@ export interface ProductSchemaInput {
   brandName: string;
   categoryName: string;
   sku: string;
+  /** Only pass when real APPROVED reviews exist — never fabricate. */
+  aggregateRating?: { ratingValue: number; reviewCount: number };
 }
 
 /**
@@ -119,6 +121,16 @@ export function productSchema(input: ProductSchemaInput): Json {
     sku: input.sku,
     category: input.categoryName,
     brand: { "@type": "Brand", name: input.brandName },
+    // AggregateRating is emitted only when real approved reviews exist.
+    ...(input.aggregateRating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: input.aggregateRating.ratingValue,
+            reviewCount: input.aggregateRating.reviewCount,
+          },
+        }
+      : {}),
     offers: {
       "@type": "Offer",
       url: absoluteUrl(`/product/${input.slug}`),

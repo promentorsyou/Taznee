@@ -58,7 +58,10 @@ export function productMetadata(product: ProductLike): Metadata {
 }
 
 /** Product + BreadcrumbList structured data for the product page. */
-export function productJsonLd(product: ProductLike): Record<string, unknown>[] {
+export function productJsonLd(
+  product: ProductLike,
+  reviewSummary?: { average: number; count: number } | null,
+): Record<string, unknown>[] {
   return [
     productSchema({
       slug: product.slug,
@@ -70,6 +73,9 @@ export function productJsonLd(product: ProductLike): Record<string, unknown>[] {
       brandName: product.designer?.name ?? "Taznee",
       categoryName: product.category.name,
       sku: product.id,
+      aggregateRating: reviewSummary
+        ? { ratingValue: reviewSummary.average, reviewCount: reviewSummary.count }
+        : undefined,
     }),
     breadcrumbSchema(productBreadcrumbs(product)),
   ];

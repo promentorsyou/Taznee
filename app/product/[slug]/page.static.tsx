@@ -11,6 +11,7 @@ import { centsToDisplay } from "@/lib/money";
 import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
+import { ReviewsSection } from "@/components/reviews-section";
 import { getProductDetailData, getAllStaticSlugs } from "@/lib/catalog";
 import { productBreadcrumbs, productJsonLd, productMetadata } from "@/lib/product-seo";
 
@@ -93,6 +94,8 @@ export default async function ProductDetailPage({
         </div>
       </div>
       </div>
+
+      <ReviewsSection reviews={[]} summary={null} />
     </div>
   );
 }

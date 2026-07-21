@@ -6,7 +6,9 @@ import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
 import { AddToCartForm } from "@/components/add-to-cart-form";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
+import { ReviewsSection } from "@/components/reviews-section";
 import { getProductDetailData } from "@/lib/catalog";
+import { getApprovedReviews, summarizeReviews } from "@/lib/reviews";
 import { productBreadcrumbs, productJsonLd, productMetadata } from "@/lib/product-seo";
 
 export async function generateMetadata({
@@ -32,9 +34,12 @@ export default async function ProductDetailPage({
   const sizes = [...new Set(product.variants.map((v) => v.size))];
   const colors = [...new Set(product.variants.map((v) => v.color))];
 
+  const reviews = await getApprovedReviews(product.id);
+  const reviewSummary = summarizeReviews(reviews);
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      {productJsonLd(product).map((schema, i) => (
+      {productJsonLd(product, reviewSummary).map((schema, i) => (
         <JsonLd key={i} data={schema} />
       ))}
       <Breadcrumbs items={productBreadcrumbs(product)} />
@@ -90,6 +95,8 @@ export default async function ProductDetailPage({
         />
       </div>
       </div>
+
+      <ReviewsSection reviews={reviews} summary={reviewSummary} />
     </div>
   );
 }

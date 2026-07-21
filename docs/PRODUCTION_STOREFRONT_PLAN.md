@@ -29,7 +29,7 @@ exists and deploys to Vercel. Static-only limitations are intentional. Two build
 - [x] Automated internal-link checker (crawl built static `out/`, fail on broken nav/footer links); wire into CI.
 - [x] Cart icon with live item count in the header (live app).
 - [x] Category sorting (price asc/desc, newest) alongside existing filters, URL-driven.
-- [ ] Reviews data model (schema) + verified-only review UI with honest empty state (NO fake reviews).
+- [x] Reviews data model (schema) + verified-only review UI with honest empty state (NO fake reviews).
 - [ ] Analytics event abstraction: GA4 + Meta Pixel/CAPI via env, consent-gated; emit view_item, search, add_to_cart, begin_checkout, purchase, sign_up.
 - [ ] Email signup form with explicit consent + stubbed subscribe route (provider via env), configurable welcome-offer copy.
 - [ ] Evergreen SEO guides (factual, no business claims): Jamdani Saree Guide, How to Measure for Custom Stitching, What "Ready to Ship" Means, Bangladeshi Sarees in the USA, Bangladeshi Wedding Outfit Guide. Interlink with products/categories.

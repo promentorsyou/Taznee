@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { MobileNav } from "@/components/mobile-nav";
+import { CartLink } from "@/components/cart-link";
 import { NAV_LINKS } from "@/lib/nav-links";
 
 async function AccountLinks() {
@@ -8,7 +9,7 @@ async function AccountLinks() {
 
   return (
     <>
-      <Link href="/cart" className="px-1 py-2 hover:text-burgundy">Cart</Link>
+      <CartLink />
       {session?.user ? (
         <>
           <Link href="/account/orders" className="hidden sm:inline px-1 py-2 hover:text-burgundy">My Orders</Link>

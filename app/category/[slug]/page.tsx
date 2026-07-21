@@ -14,6 +14,7 @@ interface PageProps {
     size?: string;
     color?: string;
     readyToShip?: string;
+    sort?: string;
   }>;
 }
 
@@ -123,6 +124,31 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         >
           Ready to Ship Only
         </Link>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 text-sm border-t border-charcoal/10 pt-4">
+        <span className="text-charcoal/50">
+          {products.length} {products.length === 1 ? "item" : "items"}
+        </span>
+        <div className="flex items-center gap-2 leading-8">
+          <span className="text-charcoal/50">Sort:</span>
+          {[
+            { label: "Newest", value: undefined },
+            { label: "Price: Low to High", value: "price-asc" },
+            { label: "Price: High to Low", value: "price-desc" },
+          ].map((s) => {
+            const active = (filters.sort ?? undefined) === s.value;
+            return (
+              <Link
+                key={s.label}
+                href={filterLink({ sort: s.value })}
+                className={active ? "text-burgundy font-medium" : "hover:text-burgundy"}
+              >
+                {s.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       {products.length === 0 ? (

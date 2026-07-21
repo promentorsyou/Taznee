@@ -28,7 +28,7 @@ exists and deploys to Vercel. Static-only limitations are intentional. Two build
 - [x] Google Merchant Center product feed at `/feed.xml` (live app only; excluded from static build).
 - [x] Automated internal-link checker (crawl built static `out/`, fail on broken nav/footer links); wire into CI.
 - [x] Cart icon with live item count in the header (live app).
-- [ ] Category sorting (price asc/desc, newest) alongside existing filters, URL-driven.
+- [x] Category sorting (price asc/desc, newest) alongside existing filters, URL-driven.
 - [ ] Reviews data model (schema) + verified-only review UI with honest empty state (NO fake reviews).
 - [ ] Analytics event abstraction: GA4 + Meta Pixel/CAPI via env, consent-gated; emit view_item, search, add_to_cart, begin_checkout, purchase, sign_up.
 - [ ] Email signup form with explicit consent + stubbed subscribe route (provider via env), configurable welcome-offer copy.

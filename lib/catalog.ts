@@ -69,6 +69,7 @@ export interface CategoryFilters {
   size?: string;
   color?: string;
   readyToShip?: string;
+  sort?: string; // "price-asc" | "price-desc" | "newest" (default)
 }
 
 export const getCategoryPageData = cache(async (slug: string, filters: CategoryFilters) => {
@@ -96,6 +97,11 @@ export const getCategoryPageData = cache(async (slug: string, filters: CategoryF
     }
     if (filters.color) {
       products = products.filter((p) => p.variants.some((v) => v.color === filters.color));
+    }
+    if (filters.sort === "price-asc") {
+      products = [...products].sort((a, b) => a.basePriceCents - b.basePriceCents);
+    } else if (filters.sort === "price-desc") {
+      products = [...products].sort((a, b) => b.basePriceCents - a.basePriceCents);
     }
 
     const allVariantsInCategory = STATIC_PRODUCTS.filter((p) => p.categorySlug === slug).flatMap(
@@ -141,11 +147,18 @@ export const getCategoryPageData = cache(async (slug: string, filters: CategoryF
     };
   }
 
+  const orderBy: Prisma.ProductOrderByWithRelationInput =
+    filters.sort === "price-asc"
+      ? { basePriceCents: "asc" }
+      : filters.sort === "price-desc"
+        ? { basePriceCents: "desc" }
+        : { createdAt: "desc" };
+
   const [products, sizes, colors] = await Promise.all([
     prisma.product.findMany({
       where,
       include: { images: { orderBy: { position: "asc" }, take: 1 }, designer: true },
-      orderBy: { createdAt: "desc" },
+      orderBy,
     }),
     prisma.productVariant.findMany({
       where: { product: { categoryId: category.id } },

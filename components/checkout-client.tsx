@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { centsToDisplay } from "@/lib/money";
 import { fetchJson, FetchJsonError } from "@/lib/fetch-json";
+import { track } from "@/lib/analytics";
 
 interface CartLine {
   id: string;
@@ -63,6 +64,15 @@ export function CheckoutClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [canRetry, setCanRetry] = useState(false);
+
+  useEffect(() => {
+    track("begin_checkout", {
+      currency: "USD",
+      value: items.reduce((sum, i) => sum + i.unitPriceCents * i.quantity, 0) / 100,
+      items: items.map((i) => ({ item_id: i.id, quantity: i.quantity })),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 

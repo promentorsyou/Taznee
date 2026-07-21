@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { addToCartAction } from "@/app/actions/cart";
+import { track } from "@/lib/analytics";
 
 interface VariantOption {
   id: string;
@@ -32,7 +33,15 @@ export function AddToCartForm({
   );
 
   return (
-    <form action={addToCartAction} className="space-y-4">
+    <form
+      action={addToCartAction}
+      onSubmit={() =>
+        track("add_to_cart", {
+          items: [{ item_id: productSlug, item_variant: selectedVariant?.id }],
+        })
+      }
+      className="space-y-4"
+    >
       <input type="hidden" name="productId" value={productId} />
       <input type="hidden" name="productSlug" value={productSlug} />
       <input type="hidden" name="variantId" value={selectedVariant?.id ?? ""} />

@@ -12,6 +12,7 @@ import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
 import { ReviewsSection } from "@/components/reviews-section";
+import { TrackEvent } from "@/components/track-event";
 import { getProductDetailData, getAllStaticSlugs } from "@/lib/catalog";
 import { productBreadcrumbs, productJsonLd, productMetadata } from "@/lib/product-seo";
 
@@ -44,6 +45,14 @@ export default async function ProductDetailPage({
       {productJsonLd(product).map((schema, i) => (
         <JsonLd key={i} data={schema} />
       ))}
+      <TrackEvent
+        event="view_item"
+        params={{
+          currency: "USD",
+          value: product.basePriceCents / 100,
+          items: [{ item_id: product.slug, item_name: product.name }],
+        }}
+      />
       <Breadcrumbs items={productBreadcrumbs(product)} />
       <div className="grid md:grid-cols-2 gap-12">
       <div className="grid grid-cols-2 gap-3">

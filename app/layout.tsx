@@ -4,6 +4,7 @@ import "./globals.css";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import { JsonLd } from "@/components/json-ld";
+import { AnalyticsProvider } from "@/components/analytics-provider";
 import { IS_INDEXABLE, organizationSchema, websiteSchema } from "@/lib/seo";
 
 const playfair = Playfair_Display({
@@ -55,6 +56,7 @@ export default function RootLayout({
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        <AnalyticsProvider />
       </body>
     </html>
   );

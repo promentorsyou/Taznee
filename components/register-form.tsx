@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { fetchJson, FetchJsonError } from "@/lib/fetch-json";
+import { track } from "@/lib/analytics";
 
 const inputClass =
   "w-full border border-charcoal/20 rounded px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-burgundy/40";
@@ -27,6 +28,7 @@ export function RegisterForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
+      track("sign_up", { method: "credentials" });
       await signIn("credentials", { email, password, redirect: false });
       router.push("/");
       router.refresh();

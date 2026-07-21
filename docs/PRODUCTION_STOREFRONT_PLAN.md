@@ -30,7 +30,7 @@ exists and deploys to Vercel. Static-only limitations are intentional. Two build
 - [x] Cart icon with live item count in the header (live app).
 - [x] Category sorting (price asc/desc, newest) alongside existing filters, URL-driven.
 - [x] Reviews data model (schema) + verified-only review UI with honest empty state (NO fake reviews).
-- [ ] Analytics event abstraction: GA4 + Meta Pixel/CAPI via env, consent-gated; emit view_item, search, add_to_cart, begin_checkout, purchase, sign_up.
+- [x] Analytics event abstraction: GA4 + Meta Pixel via env, consent-gated; emit view_item, add_to_cart, begin_checkout, purchase, sign_up (search wires when search ships). Meta CAPI = owner follow-up (token + server relay).
 - [ ] Email signup form with explicit consent + stubbed subscribe route (provider via env), configurable welcome-offer copy.
 - [ ] Evergreen SEO guides (factual, no business claims): Jamdani Saree Guide, How to Measure for Custom Stitching, What "Ready to Ship" Means, Bangladeshi Sarees in the USA, Bangladeshi Wedding Outfit Guide. Interlink with products/categories.
 - [ ] Size guide / measurement chart content + modal on product pages.

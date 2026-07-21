@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { centsToDisplay } from "@/lib/money";
 import { formatDateRange } from "@/lib/delivery";
 import { stripe } from "@/lib/stripe";
+import { TrackEvent } from "@/components/track-event";
 
 export default async function ConfirmationPage({
   params,
@@ -43,6 +44,17 @@ export default async function ConfirmationPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-16 text-center">
+      {order.status === "PAID" && (
+        <TrackEvent
+          event="purchase"
+          params={{
+            transaction_id: order.id,
+            currency: "USD",
+            value: order.totalCents / 100,
+            shipping: order.shippingCents / 100,
+          }}
+        />
+      )}
       <h1 className="font-serif text-3xl mb-2">
         {order.status === "PAID" ? "Thank you for your order!" : "Order received"}
       </h1>

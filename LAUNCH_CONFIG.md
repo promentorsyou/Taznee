@@ -58,11 +58,20 @@ are not sent — customers see on-site confirmation only.
 2. Set `NEXT_PUBLIC_SITE_URL` to the final origin.
 3. Only then set `NEXT_PUBLIC_INDEXABLE=true` and submit the sitemap to Google Search Console.
 
-## 6. Analytics (planned)
+## 6. Analytics
 
-Event abstraction is on the plan (`docs/PRODUCTION_STOREFRONT_PLAN.md`) but IDs are owner-supplied.
-**TODO(owner):** GA4 measurement ID, Meta Pixel ID + CAPI token, and a consent-management
-choice (required for EU/CA visitors). No analytics fires until these are set.
+The event abstraction, consent gate, and client-side GA4 + Meta Pixel are implemented
+(`lib/analytics.ts`, `components/analytics-provider.tsx`). Events emitted: `view_item`,
+`add_to_cart`, `begin_checkout`, `purchase`, `sign_up` (and `search` once search ships).
+With no IDs set, no scripts load and no consent banner shows.
+
+**TODO(owner):**
+- Set `NEXT_PUBLIC_GA4_ID` and/or `NEXT_PUBLIC_META_PIXEL_ID`. A consent banner then appears
+  and nothing tracks until the visitor accepts.
+- Server-side **Meta CAPI** is not wired (needs an access token + a server relay). If you want
+  CAPI, provide `META_CAPI_TOKEN` and request the `/api/meta-capi` relay as a follow-up.
+- Confirm the consent model meets your legal obligations (EU/UK/CA). The current banner is a
+  simple accept/decline; a full consent-management platform may be required in some regions.
 
 ## 7. Product images
 

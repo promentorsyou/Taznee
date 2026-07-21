@@ -2,10 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
-import { getHomepageData } from "@/lib/catalog";
+import { NewsletterSignup } from "@/components/newsletter-signup";
+import { getHomepageData, STATIC_EXPORT } from "@/lib/catalog";
 import { absoluteUrl } from "@/lib/seo";
 
 export const revalidate = 60;
+
+// Optional owner-configured promo shown above the signup form. Unset by
+// default — no discount is implied unless the owner sets this.
+const WELCOME_OFFER = process.env.NEXT_PUBLIC_WELCOME_OFFER;
 
 export const metadata: Metadata = {
   alternates: { canonical: absoluteUrl("/") },
@@ -117,6 +122,16 @@ export default async function HomePage() {
               zone before you confirm your order.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-charcoal text-ivory">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14">
+          <h2 className="font-serif text-2xl mb-2">Join the Taznee list</h2>
+          <p className="text-ivory/70 text-sm mb-6 max-w-xl">
+            New arrivals, seasonal collections, and shipping updates for customers in the US.
+          </p>
+          <NewsletterSignup enabled={!STATIC_EXPORT} welcomeOffer={WELCOME_OFFER} />
         </div>
       </section>
     </div>

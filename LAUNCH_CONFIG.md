@@ -47,10 +47,13 @@ Never commit real values — use `.env` locally and the host's secret store in p
 
 ## 4. Email provider (planned)
 
-No transactional/marketing email is wired yet. **TODO(owner):** choose a provider
-(e.g. Resend, Postmark, Klaviyo) and supply API keys for: order confirmation, shipping
-updates, password reset, welcome/abandoned-cart/review-request. Until then, order emails
-are not sent — customers see on-site confirmation only.
+Newsletter signups **are** captured durably in the DB (`NewsletterSubscriber`, via
+`/api/newsletter`, consent required) — no signups are lost. But no email is actually
+**sent** yet. **TODO(owner):** choose a provider (e.g. Resend, Postmark, Klaviyo) and
+supply API keys, then: sync/forward newsletter subscribers, and wire order confirmation,
+shipping updates, password reset, and welcome/abandoned-cart/review-request emails. Until
+then, order confirmation is on-site only. Optional promo copy above the signup form:
+`NEXT_PUBLIC_WELCOME_OFFER` (leave unset to imply no discount).
 
 ## 5. Custom domain
 

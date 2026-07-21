@@ -355,3 +355,17 @@ model Review {
   @@unique([productId, userId])
   @@index([productId, status])
 }
+
+// ---------- Marketing ----------
+
+/// Newsletter subscribers, captured durably even before an email provider
+/// (Klaviyo/Mailchimp/etc.) is connected. `consent` records that the visitor
+/// explicitly opted in. When a provider is configured, sync these records to
+/// it. No addresses are collected without an explicit consent checkbox.
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  consent   Boolean  @default(true)
+  source    String? // e.g. "homepage"
+  createdAt DateTime @default(now())
+}

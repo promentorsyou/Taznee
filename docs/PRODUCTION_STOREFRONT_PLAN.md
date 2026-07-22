@@ -34,7 +34,7 @@ exists and deploys to Vercel. Static-only limitations are intentional. Two build
 - [x] Email signup form with explicit consent + durable subscribe route (DB-backed; provider = owner follow-up), configurable welcome-offer copy.
 - [x] Evergreen SEO guides (factual, no business claims): Jamdani Saree Guide, How to Measure for Custom Stitching, What "Ready to Ship" Means, Bangladeshi Sarees in the USA, Bangladeshi Wedding Outfit Guide. Interlink with products/categories.
 - [x] Size guide / measurement chart content + modal on product pages.
-- [ ] Product image gallery: thumbnails + zoom/lightbox.
+- [x] Product image gallery: thumbnails + zoom/lightbox.
 - [ ] Header search over product names/categories (live app; static shows disabled note).
 - [ ] Shop-by-occasion: add optional Product.occasions data + landing pages (Eid, Holud, Mehndi, Nikkah, Wedding Guest, Reception, Gifts) driven by real tagged products only.
 

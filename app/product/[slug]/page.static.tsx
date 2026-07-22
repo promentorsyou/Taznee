@@ -6,11 +6,11 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { centsToDisplay } from "@/lib/money";
 import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
+import { ProductGallery } from "@/components/product-gallery";
 import { ReviewsSection } from "@/components/reviews-section";
 import { SizeGuideModal } from "@/components/size-guide-modal";
 import { TrackEvent } from "@/components/track-event";
@@ -56,20 +56,7 @@ export default async function ProductDetailPage({
       />
       <Breadcrumbs items={productBreadcrumbs(product)} />
       <div className="grid md:grid-cols-2 gap-12">
-      <div className="grid grid-cols-2 gap-3">
-        {product.images.map((img, idx) => (
-          <div key={img.id} className="relative aspect-[3/4] rounded-md overflow-hidden bg-charcoal/5 first:col-span-2">
-            <Image
-              src={img.url}
-              alt={img.altText ?? product.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority={idx === 0}
-            />
-          </div>
-        ))}
-      </div>
+      <ProductGallery images={product.images} productName={product.name} />
 
       <div>
         {product.designer && (

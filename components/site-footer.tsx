@@ -33,6 +33,11 @@ export default function SiteFooter() {
                 Guides
               </Link>
             </li>
+            <li>
+              <Link href="/occasions" className="hover:text-ivory hover:underline">
+                Shop by Occasion
+              </Link>
+            </li>
             {/* Order History needs auth + the live app; it doesn't exist in
                 the static preview build, so linking it there would 404. */}
             {!STATIC_EXPORT && (

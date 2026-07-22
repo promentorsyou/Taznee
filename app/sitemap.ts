@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { GUIDES } from "@/lib/guides";
+import { OCCASIONS } from "@/lib/occasions";
 
 // Rendered per-request, not at build time — it queries Prisma, and a
 // DATABASE_URL may not be available at build time (e.g. in CI). Swapped
@@ -24,6 +25,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}/guides/${g.slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.5,
+    })),
+    { url: `${siteUrl}/occasions`, changeFrequency: "weekly", priority: 0.6 },
+    ...OCCASIONS.map((o) => ({
+      url: `${siteUrl}/occasions/${o.slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
     })),
     ...categories.map((c) => ({
       url: `${siteUrl}/category/${c.slug}`,

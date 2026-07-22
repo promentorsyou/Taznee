@@ -137,6 +137,11 @@ model Product {
   weightGrams Int      @default(500)
   isFeatured  Boolean  @default(false)
   isActive    Boolean  @default(true)
+
+  // Optional shop-by-occasion tags (slugs from lib/occasions.ts), e.g.
+  // ["eid", "wedding-guest"]. Empty means the product isn't surfaced on
+  // any occasion landing page.
+  occasions String[] @default([])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

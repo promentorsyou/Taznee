@@ -16,6 +16,7 @@ import {
   type StaticProduct,
 } from "@/lib/static-data";
 import type { ProductCardData } from "@/components/product-card";
+import { getOccasion } from "@/lib/occasions";
 
 export const STATIC_EXPORT = process.env.STATIC_EXPORT === "1";
 
@@ -283,6 +284,36 @@ export const searchProducts = cache(async (query: string) => {
       designerName: p.designer?.name ?? null,
     }),
   );
+});
+
+/**
+ * Products tagged for a given shop-by-occasion slug. Returns null if the
+ * occasion is unknown, otherwise only the products actually carrying the
+ * tag (possibly an empty list — the page renders an honest empty state).
+ */
+export const getOccasionProducts = cache(async (slug: string): Promise<ProductCardData[] | null> => {
+  const occasion = getOccasion(slug);
+  if (!occasion) return null;
+
+  if (STATIC_EXPORT) {
+    return STATIC_PRODUCTS.filter((p) => p.occasions?.includes(slug)).map(toCardData);
+  }
+
+  const products = await prisma.product.findMany({
+    where: { isActive: true, occasions: { has: slug } },
+    include: { images: { orderBy: { position: "asc" }, take: 1 }, designer: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return products.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    basePriceCents: p.basePriceCents,
+    compareAtCents: p.compareAtCents,
+    readyToShip: p.readyToShip,
+    imageUrl: p.images[0]?.url ?? null,
+    designerName: p.designer?.name ?? null,
+  }));
 });
 
 export function getAllStaticSlugs() {

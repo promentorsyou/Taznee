@@ -20,6 +20,7 @@ EXCLUDE_DIRS=(app/api app/cart app/checkout app/login app/register app/account a
 SWAP_FILES=(
   "app/product/[slug]/page.tsx:app/product/[slug]/page.static.tsx"
   "app/category/[slug]/page.tsx:app/category/[slug]/page.static.tsx"
+  "app/occasions/[slug]/page.tsx:app/occasions/[slug]/page.static.tsx"
   "components/site-header.tsx:components/site-header.static.tsx"
   "app/sitemap.ts:app/sitemap.static.ts"
 )

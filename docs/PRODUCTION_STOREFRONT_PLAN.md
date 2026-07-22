@@ -1,4 +1,4 @@
-STATUS: IN PROGRESS
+STATUS: ALL SAFE WORK COMPLETE
 
 # Taznee Production Storefront — Work Plan
 
@@ -36,7 +36,7 @@ exists and deploys to Vercel. Static-only limitations are intentional. Two build
 - [x] Size guide / measurement chart content + modal on product pages.
 - [x] Product image gallery: thumbnails + zoom/lightbox.
 - [x] Header search over product names/categories (live app; static shows disabled note).
-- [ ] Shop-by-occasion: add optional Product.occasions data + landing pages (Eid, Holud, Mehndi, Nikkah, Wedding Guest, Reception, Gifts) driven by real tagged products only.
+- [x] Shop-by-occasion: add optional Product.occasions data + landing pages (Eid, Holud, Mehndi, Nikkah, Wedding Guest, Reception, Gifts) driven by real tagged products only.
 
 ## OWNER-BLOCKED items (NOT for the scheduler — need the owner's input/credentials)
 These are listed for handoff; do not fabricate them.

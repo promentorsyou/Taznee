@@ -32,7 +32,7 @@ exists and deploys to Vercel. Static-only limitations are intentional. Two build
 - [x] Reviews data model (schema) + verified-only review UI with honest empty state (NO fake reviews).
 - [x] Analytics event abstraction: GA4 + Meta Pixel via env, consent-gated; emit view_item, add_to_cart, begin_checkout, purchase, sign_up (search wires when search ships). Meta CAPI = owner follow-up (token + server relay).
 - [x] Email signup form with explicit consent + durable subscribe route (DB-backed; provider = owner follow-up), configurable welcome-offer copy.
-- [ ] Evergreen SEO guides (factual, no business claims): Jamdani Saree Guide, How to Measure for Custom Stitching, What "Ready to Ship" Means, Bangladeshi Sarees in the USA, Bangladeshi Wedding Outfit Guide. Interlink with products/categories.
+- [x] Evergreen SEO guides (factual, no business claims): Jamdani Saree Guide, How to Measure for Custom Stitching, What "Ready to Ship" Means, Bangladeshi Sarees in the USA, Bangladeshi Wedding Outfit Guide. Interlink with products/categories.
 - [ ] Size guide / measurement chart content + modal on product pages.
 - [ ] Product image gallery: thumbnails + zoom/lightbox.
 - [ ] Header search over product names/categories (live app; static shows disabled note).

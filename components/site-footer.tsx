@@ -28,6 +28,11 @@ export default function SiteFooter() {
                 Returns &amp; Refunds
               </Link>
             </li>
+            <li>
+              <Link href="/guides" className="hover:text-ivory hover:underline">
+                Guides
+              </Link>
+            </li>
             {/* Order History needs auth + the live app; it doesn't exist in
                 the static preview build, so linking it there would 404. */}
             {!STATIC_EXPORT && (

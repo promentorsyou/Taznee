@@ -5,6 +5,7 @@
  */
 import type { MetadataRoute } from "next";
 import { getAllStaticSlugs } from "@/lib/catalog";
+import { GUIDES } from "@/lib/guides";
 
 export const dynamic = "force-static";
 
@@ -15,6 +16,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteUrl, changeFrequency: "daily", priority: 1 },
     { url: `${siteUrl}/returns`, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${siteUrl}/guides`, changeFrequency: "monthly", priority: 0.5 },
+    ...GUIDES.map((g) => ({
+      url: `${siteUrl}/guides/${g.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    })),
     ...categorySlugs.map((slug) => ({
       url: `${siteUrl}/category/${slug}`,
       changeFrequency: "daily" as const,

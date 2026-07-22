@@ -248,6 +248,43 @@ export const getProductDetailData = cache(async (slug: string) => {
   };
 });
 
+/**
+ * Full-text-ish product search over name, description, and category name.
+ * Live app only — the static export excludes the /search route (it has no
+ * server runtime to run a query per request). Case-insensitive contains
+ * match; empty query returns no results.
+ */
+export const searchProducts = cache(async (query: string) => {
+  const q = query.trim();
+  if (!q) return [];
+
+  const products = await prisma.product.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+        { category: { name: { contains: q, mode: "insensitive" } } },
+      ],
+    },
+    include: { images: { orderBy: { position: "asc" }, take: 1 }, designer: true },
+    orderBy: { createdAt: "desc" },
+    take: 48,
+  });
+
+  return products.map(
+    (p): ProductCardData => ({
+      slug: p.slug,
+      name: p.name,
+      basePriceCents: p.basePriceCents,
+      compareAtCents: p.compareAtCents,
+      readyToShip: p.readyToShip,
+      imageUrl: p.images[0]?.url ?? null,
+      designerName: p.designer?.name ?? null,
+    }),
+  );
+});
+
 export function getAllStaticSlugs() {
   return {
     categorySlugs: STATIC_CATEGORIES.map((c) => c.slug),

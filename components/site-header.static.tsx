@@ -26,6 +26,26 @@ export default function SiteHeader() {
             </Link>
           ))}
         </nav>
+        {/* Search needs a server query per request, which the database-free
+            static export can't run — show a disabled field so the preview
+            still communicates that search exists in the live app. */}
+        <div className="hidden sm:block flex-1 max-w-[16rem] mx-2">
+          <div className="relative" title="Search is available in the live app">
+            <input
+              type="search"
+              disabled
+              placeholder="Search (live app only)"
+              aria-label="Search products (available in the live app only)"
+              className="w-full rounded-full border border-charcoal/15 bg-charcoal/5 pl-9 pr-3 py-1.5 text-sm text-charcoal/40 cursor-not-allowed"
+            />
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-charcoal/30">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
+                <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </span>
+          </div>
+        </div>
         <div className="flex items-center gap-4 text-sm">
           <span className="text-charcoal/40 text-xs uppercase tracking-wide">Static Preview</span>
         </div>

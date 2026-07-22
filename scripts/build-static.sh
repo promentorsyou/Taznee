@@ -13,7 +13,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-EXCLUDE_DIRS=(app/api app/cart app/checkout app/login app/register app/account app/admin app/actions app/feed.xml components/add-to-cart-form.tsx)
+EXCLUDE_DIRS=(app/api app/cart app/checkout app/login app/register app/account app/admin app/actions app/feed.xml app/search components/add-to-cart-form.tsx)
 # pairs of "real path:static replacement path", swapped in for the build.
 # Stash names are indexed (not basename-derived) since multiple real paths
 # share a basename (every dynamic route is literally "page.tsx").

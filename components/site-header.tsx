@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { MobileNav } from "@/components/mobile-nav";
 import { CartLink } from "@/components/cart-link";
+import { SearchBox } from "@/components/search-box";
 import { NAV_LINKS } from "@/lib/nav-links";
 
 async function AccountLinks() {
@@ -49,6 +50,9 @@ export default function SiteHeader() {
             </Link>
           ))}
         </nav>
+        <div className="hidden sm:block flex-1 max-w-[16rem] mx-2">
+          <SearchBox compact />
+        </div>
         <div className="flex items-center gap-3 sm:gap-4 text-sm">
           <AccountLinks />
         </div>

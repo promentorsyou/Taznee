@@ -12,6 +12,7 @@ import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
 import { ReviewsSection } from "@/components/reviews-section";
+import { SizeGuideModal } from "@/components/size-guide-modal";
 import { TrackEvent } from "@/components/track-event";
 import { getProductDetailData, getAllStaticSlugs } from "@/lib/catalog";
 import { productBreadcrumbs, productJsonLd, productMetadata } from "@/lib/product-seo";
@@ -95,6 +96,10 @@ export default async function ProductDetailPage({
             transitMinDays={product.transitMinDays}
             transitMaxDays={product.transitMaxDays}
           />
+        </div>
+
+        <div className="mb-4">
+          <SizeGuideModal />
         </div>
 
         <div className="border border-charcoal/15 rounded-md p-4 text-sm text-charcoal/70">

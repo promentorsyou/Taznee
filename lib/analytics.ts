@@ -17,8 +17,10 @@ export type AnalyticsEvent =
   | "view_item_list"
   | "search"
   | "add_to_cart"
+  | "view_cart"
   | "begin_checkout"
   | "purchase"
+  | "share"
   | "sign_up";
 
 // GA4 event name -> Meta Pixel standard event name.
@@ -27,8 +29,11 @@ const META_EVENT_MAP: Record<AnalyticsEvent, string> = {
   view_item_list: "ViewContent",
   search: "Search",
   add_to_cart: "AddToCart",
+  view_cart: "ViewContent",
   begin_checkout: "InitiateCheckout",
   purchase: "Purchase",
+  // Meta has no standard "share" event; it is sent as a custom event name.
+  share: "Share",
   sign_up: "CompleteRegistration",
 };
 

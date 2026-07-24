@@ -13,7 +13,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-EXCLUDE_DIRS=(app/api app/cart app/checkout app/login app/register app/account app/admin app/actions app/feed.xml app/search components/add-to-cart-form.tsx)
+# The cart and checkout are now CLIENT-side (localStorage), so they build
+# fine in the export and the preview is genuinely shoppable. Only routes
+# that truly need a server runtime stay excluded: auth, API handlers,
+# server actions, account/admin, and the order confirmation page (which
+# reads an order from Postgres by id).
+EXCLUDE_DIRS=(app/api app/login app/register app/account app/admin app/actions app/feed.xml app/search app/checkout/confirmation)
 # pairs of "real path:static replacement path", swapped in for the build.
 # Stash names are indexed (not basename-derived) since multiple real paths
 # share a basename (every dynamic route is literally "page.tsx").
@@ -61,6 +66,10 @@ for i in "${!SWAP_FILES[@]}"; do
   cp "$static" "$real"
 done
 
-STATIC_EXPORT=1 npx next build
+# NEXT_PUBLIC_STATIC_EXPORT is the client-visible twin of STATIC_EXPORT:
+# only NEXT_PUBLIC_* vars are inlined into client bundles, and client
+# components (e.g. the newsletter form) need to know that no API routes
+# exist in this build.
+STATIC_EXPORT=1 NEXT_PUBLIC_STATIC_EXPORT=1 npx next build
 
 echo "Static export complete: ./out"

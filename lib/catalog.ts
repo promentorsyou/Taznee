@@ -316,6 +316,66 @@ export const getOccasionProducts = cache(async (slug: string): Promise<ProductCa
   }));
 });
 
+/**
+ * Featured products used as bag/empty-state recommendations. Real catalog
+ * rows only — never invented "customers also bought" data.
+ */
+export const getCartRecommendations = cache(async (limit = 4): Promise<ProductCardData[]> => {
+  if (STATIC_EXPORT) {
+    return STATIC_PRODUCTS.filter((p) => p.isFeatured).slice(0, limit).map(toCardData);
+  }
+
+  const products = await prisma.product.findMany({
+    where: { isActive: true, isFeatured: true },
+    include: { images: { orderBy: { position: "asc" }, take: 1 }, designer: true },
+    take: limit,
+  });
+
+  return products.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    basePriceCents: p.basePriceCents,
+    compareAtCents: p.compareAtCents,
+    readyToShip: p.readyToShip,
+    imageUrl: p.images[0]?.url ?? null,
+    designerName: p.designer?.name ?? null,
+  }));
+});
+
+/**
+ * Other products in the same category, excluding the one being viewed.
+ * Used for "You may also like" on the product page.
+ */
+export const getRelatedProducts = cache(
+  async (categorySlug: string, excludeSlug: string, limit = 4): Promise<ProductCardData[]> => {
+    if (STATIC_EXPORT) {
+      return STATIC_PRODUCTS.filter((p) => p.categorySlug === categorySlug && p.slug !== excludeSlug)
+        .slice(0, limit)
+        .map(toCardData);
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        isActive: true,
+        slug: { not: excludeSlug },
+        category: { slug: categorySlug },
+      },
+      include: { images: { orderBy: { position: "asc" }, take: 1 }, designer: true },
+      take: limit,
+    });
+
+    return products.map((p) => ({
+      slug: p.slug,
+      name: p.name,
+      basePriceCents: p.basePriceCents,
+      compareAtCents: p.compareAtCents,
+      readyToShip: p.readyToShip,
+      imageUrl: p.images[0]?.url ?? null,
+      designerName: p.designer?.name ?? null,
+    }));
+  },
+);
+
 export function getAllStaticSlugs() {
   return {
     categorySlugs: STATIC_CATEGORIES.map((c) => c.slug),

@@ -5,11 +5,16 @@ import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
 import { AddToCartForm } from "@/components/add-to-cart-form";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
+import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
+import { ProductMetaTags } from "@/components/product-meta-tags";
 import { ReviewsSection } from "@/components/reviews-section";
+import { ShareButton } from "@/components/share-button";
 import { SizeGuideModal } from "@/components/size-guide-modal";
+import { RecentlyViewed } from "@/components/recently-viewed";
 import { TrackEvent } from "@/components/track-event";
-import { getProductDetailData } from "@/lib/catalog";
+import { getProductDetailData, getRelatedProducts } from "@/lib/catalog";
+import { absoluteUrl } from "@/lib/seo";
 import { getApprovedReviews, summarizeReviews } from "@/lib/reviews";
 import { productBreadcrumbs, productJsonLd, productMetadata } from "@/lib/product-seo";
 
@@ -38,6 +43,7 @@ export default async function ProductDetailPage({
 
   const reviews = await getApprovedReviews(product.id);
   const reviewSummary = summarizeReviews(reviews);
+  const related = await getRelatedProducts(product.category.slug, product.slug);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -52,6 +58,7 @@ export default async function ProductDetailPage({
           items: [{ item_id: product.slug, item_name: product.name }],
         }}
       />
+      <ProductMetaTags priceCents={product.basePriceCents} readyToShip={product.readyToShip} />
       <Breadcrumbs items={productBreadcrumbs(product)} />
       <div className="grid md:grid-cols-2 gap-12">
       <ProductGallery images={product.images} productName={product.name} />
@@ -83,21 +90,54 @@ export default async function ProductDetailPage({
           />
         </div>
 
-        <div className="mb-4">
+        <div className="mb-4 flex flex-wrap items-center gap-4">
           <SizeGuideModal />
         </div>
 
         <AddToCartForm
-          productId={product.id}
           productSlug={product.slug}
+          productName={product.name}
+          basePriceCents={product.basePriceCents}
+          imageUrl={product.images[0]?.url ?? null}
           variants={product.variants}
           sizes={sizes}
           colors={colors}
         />
+
+        <div className="mt-5">
+          <ShareButton
+            url={absoluteUrl(`/product/${product.slug}`)}
+            title={product.name}
+            text={product.description.slice(0, 120)}
+          />
+        </div>
       </div>
       </div>
 
       <ReviewsSection reviews={reviews} summary={reviewSummary} />
+
+      {related.length > 0 && (
+        <section className="mt-16">
+          <h2 className="mb-5 font-serif text-2xl">You may also like</h2>
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            {related.map((p) => (
+              <ProductCard key={p.slug} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <RecentlyViewed
+        current={{
+          slug: product.slug,
+          name: product.name,
+          basePriceCents: product.basePriceCents,
+          compareAtCents: product.compareAtCents,
+          readyToShip: product.readyToShip,
+          imageUrl: product.images[0]?.url ?? null,
+          designerName: product.designer?.name ?? null,
+        }}
+      />
     </div>
   );
 }

@@ -5,6 +5,8 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import { JsonLd } from "@/components/json-ld";
 import { AnalyticsProvider } from "@/components/analytics-provider";
+import { CartProvider } from "@/components/cart-provider";
+import { CartDrawer } from "@/components/cart-drawer";
 import { IS_INDEXABLE, organizationSchema, websiteSchema } from "@/lib/seo";
 
 const playfair = Playfair_Display({
@@ -53,9 +55,22 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-ivory text-charcoal">
         <JsonLd data={organizationSchema()} />
         <JsonLd data={websiteSchema()} />
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-burgundy focus:px-4 focus:py-2 focus:text-ivory"
+        >
+          Skip to content
+        </a>
+        {/* CartProvider wraps the whole tree so the header badge, the
+            product page, and the drawer all read one cart. */}
+        <CartProvider>
+          <SiteHeader />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <SiteFooter />
+          <CartDrawer />
+        </CartProvider>
         <AnalyticsProvider />
       </body>
     </html>

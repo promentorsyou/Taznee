@@ -1,21 +1,27 @@
 /**
  * Static-export-only variant of the product detail page, swapped in for
- * app/product/[slug]/page.tsx by scripts/build-static.sh. Has no import
- * on AddToCartForm/app/actions (which require a server runtime) so the
- * `next build --output export` bundler never has to resolve them.
+ * app/product/[slug]/page.tsx by scripts/build-static.sh. It differs only
+ * in adding generateStaticParams and skipping the DB-backed reviews query;
+ * the cart is client-side, so this build gets the real Add to Bag flow.
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { centsToDisplay } from "@/lib/money";
 import { DeliveryEstimateBadge } from "@/components/delivery-estimate";
+import { AddToCartForm } from "@/components/add-to-cart-form";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
+import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
+import { ProductMetaTags } from "@/components/product-meta-tags";
 import { ReviewsSection } from "@/components/reviews-section";
+import { ShareButton } from "@/components/share-button";
 import { SizeGuideModal } from "@/components/size-guide-modal";
+import { RecentlyViewed } from "@/components/recently-viewed";
 import { TrackEvent } from "@/components/track-event";
-import { getProductDetailData, getAllStaticSlugs } from "@/lib/catalog";
+import { getProductDetailData, getAllStaticSlugs, getRelatedProducts } from "@/lib/catalog";
 import { productBreadcrumbs, productJsonLd, productMetadata } from "@/lib/product-seo";
+import { absoluteUrl } from "@/lib/seo";
 
 export async function generateStaticParams() {
   return getAllStaticSlugs().productSlugs.map((slug) => ({ slug }));
@@ -41,6 +47,10 @@ export default async function ProductDetailPage({
   const product = await getProductDetailData(slug);
   if (!product) notFound();
 
+  const sizes = [...new Set(product.variants.map((v) => v.size))];
+  const colors = [...new Set(product.variants.map((v) => v.color))];
+  const related = await getRelatedProducts(product.category.slug, product.slug);
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       {productJsonLd(product).map((schema, i) => (
@@ -54,6 +64,7 @@ export default async function ProductDetailPage({
           items: [{ item_id: product.slug, item_name: product.name }],
         }}
       />
+      <ProductMetaTags priceCents={product.basePriceCents} readyToShip={product.readyToShip} />
       <Breadcrumbs items={productBreadcrumbs(product)} />
       <div className="grid md:grid-cols-2 gap-12">
       <ProductGallery images={product.images} productName={product.name} />
@@ -85,18 +96,54 @@ export default async function ProductDetailPage({
           />
         </div>
 
-        <div className="mb-4">
+        <div className="mb-4 flex flex-wrap items-center gap-4">
           <SizeGuideModal />
         </div>
 
-        <div className="border border-charcoal/15 rounded-md p-4 text-sm text-charcoal/70">
-          This is a static UI preview — cart and checkout require the live deployment with a
-          connected database. See the README for how to run or deploy the full app.
+        <AddToCartForm
+          productSlug={product.slug}
+          productName={product.name}
+          basePriceCents={product.basePriceCents}
+          imageUrl={product.images[0]?.url ?? null}
+          variants={product.variants}
+          sizes={sizes}
+          colors={colors}
+        />
+
+        <div className="mt-5">
+          <ShareButton
+            url={absoluteUrl(`/product/${product.slug}`)}
+            title={product.name}
+            text={product.description.slice(0, 120)}
+          />
         </div>
       </div>
       </div>
 
       <ReviewsSection reviews={[]} summary={null} />
+
+      {related.length > 0 && (
+        <section className="mt-16">
+          <h2 className="mb-5 font-serif text-2xl">You may also like</h2>
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            {related.map((p) => (
+              <ProductCard key={p.slug} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <RecentlyViewed
+        current={{
+          slug: product.slug,
+          name: product.name,
+          basePriceCents: product.basePriceCents,
+          compareAtCents: product.compareAtCents,
+          readyToShip: product.readyToShip,
+          imageUrl: product.images[0]?.url ?? null,
+          designerName: product.designer?.name ?? null,
+        }}
+      />
     </div>
   );
 }

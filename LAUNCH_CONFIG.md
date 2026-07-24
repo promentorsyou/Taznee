@@ -21,6 +21,7 @@ The app runs in two forms:
 | `STRIPE_PUBLISHABLE_KEY` | Checkout | `pk_test_…` / `pk_live_…`. |
 | `STRIPE_WEBHOOK_SECRET` | Checkout | From the Stripe webhook endpoint (`whsec_…`). Required — the webhook rejects unsigned requests. |
 | `NEXT_PUBLIC_SITE_URL` | SEO/emails | Canonical site origin, e.g. `https://taznee.com`. Used for canonical tags, sitemap, JSON-LD, Stripe return URLs. |
+| `NEXT_PUBLIC_PAYMENTS_ENABLED` | Payments | **Leave unset until the LLC + Stripe are ready.** See section 2. Controls only the checkout UI — the server still refuses to charge without secret Stripe keys. |
 | `NEXT_PUBLIC_INDEXABLE` | SEO gate | **Leave unset until launch.** Set to `true` only when real product photos, legal pages, and a working checkout are all live. Until then the whole site is `noindex` and `robots.txt` disallows all — by design (do not market or index a demo). |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | Contact/schema | Real support inbox, e.g. `care@taznee.com`. Defaults to a placeholder. |
 | `EASYPOST_API_KEY` | Live shipping rates (optional) | If unset, checkout uses the static weight/zone rate table. See README "Live shipping rates". |
@@ -29,14 +30,56 @@ The app runs in two forms:
 Never commit real values — use `.env` locally and the host's secret store in production.
 `.env.example` lists every variable.
 
-## 2. Stripe setup
+## 2. Payments & Stripe setup
 
-1. Create a Stripe account; start in **test mode**.
-2. Copy the test API keys into `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY`.
-3. Add a webhook endpoint pointing at `https://<your-domain>/api/webhooks/stripe`, subscribe
-   to `payment_intent.succeeded`, and put its signing secret in `STRIPE_WEBHOOK_SECRET`.
-4. Test with card `4242 4242 4242 4242`. Switch to live keys only after end-to-end testing.
-5. **TODO(owner):** real business + bank details for live payouts.
+### Current state: payments are OFF
+
+`NEXT_PUBLIC_PAYMENTS_ENABLED` is unset, so the storefront runs in a
+**browse-and-build-a-cart** mode that is safe to show customers today:
+
+| Works now | Deliberately off |
+|---|---|
+| Guest cart (no sign-in), persisted per device | Placing an order |
+| Cart drawer, cart page, quantity edits, removal | Taking any payment |
+| Checkout contact + shipping + shipping cost + order review | Collecting card details |
+| Product sharing, search, occasions, guides | Order confirmation emails |
+
+With payments off the checkout page shows an explicit notice that checkout is
+launching soon, the submit button is disabled, and the page states in plain
+language that **no order has been created and nothing has been charged**.
+No card field is ever rendered. Taznee never handles card data in any mode —
+when Stripe is enabled, card entry happens inside Stripe's own iframe.
+
+### Turning payments on (after the Delaware LLC + Stripe account exist)
+
+Do these **in order**, in test mode first:
+
+1. Create the Stripe account and complete business verification with the LLC
+   details (EIN, registered address, bank account for payouts).
+2. Copy the **test** keys from https://dashboard.stripe.com/test/apikeys into
+   your host's secret store (Vercel → Project → Settings → Environment Variables):
+   - `STRIPE_SECRET_KEY` = `sk_test_…`
+   - `STRIPE_PUBLISHABLE_KEY` = `pk_test_…`
+   Never commit these, and never rename them with a `NEXT_PUBLIC_` prefix.
+3. Add a webhook endpoint at `https://<your-domain>/api/webhooks/stripe`,
+   subscribe to `payment_intent.succeeded`, and copy its signing secret into
+   `STRIPE_WEBHOOK_SECRET`. The handler rejects unsigned requests, so this is
+   required, not optional.
+4. Provision the production database and run migrations (section 3) — orders
+   need somewhere to persist before you accept money.
+5. Set `NEXT_PUBLIC_PAYMENTS_ENABLED="true"` and redeploy.
+6. Place a full test order with card `4242 4242 4242 4242` (any future expiry,
+   any CVC). Confirm: the order appears in the database, the webhook fires, and
+   the confirmation page shows the order as paid.
+7. Swap the test keys for live keys (`sk_live_…` / `pk_live_…`), re-point the
+   webhook at the live endpoint, update `STRIPE_WEBHOOK_SECRET`, and redeploy.
+8. Place one small real order and refund it, to verify the live path end to end.
+
+To turn payments back off at any point, set `NEXT_PUBLIC_PAYMENTS_ENABLED=false`
+and redeploy — the storefront returns to the safe browse-and-cart mode.
+
+**TODO(owner):** Delaware LLC formation + EIN, business bank account, and the
+Stripe account itself.
 
 ## 3. Database setup
 

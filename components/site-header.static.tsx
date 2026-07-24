@@ -7,6 +7,7 @@
  */
 import Link from "next/link";
 import { MobileNav } from "@/components/mobile-nav";
+import { CartButton } from "@/components/cart-button";
 import { NAV_LINKS } from "@/lib/nav-links";
 
 export default function SiteHeader() {
@@ -46,8 +47,10 @@ export default function SiteHeader() {
             </span>
           </div>
         </div>
+        {/* The cart is client-side (localStorage), so it works here too —
+            only sign-in and server-side order placement need the live app. */}
         <div className="flex items-center gap-4 text-sm">
-          <span className="text-charcoal/40 text-xs uppercase tracking-wide">Static Preview</span>
+          <CartButton />
         </div>
       </div>
     </header>

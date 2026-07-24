@@ -14,9 +14,12 @@ import { track } from "@/lib/analytics";
 export function NewsletterSignup({
   enabled,
   welcomeOffer,
+  source = "homepage",
 }: {
   enabled: boolean;
   welcomeOffer?: string;
+  /** Attribution label stored with the subscriber, e.g. "checkout_waitlist". */
+  source?: string;
 }) {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -35,7 +38,7 @@ export function NewsletterSignup({
       await fetchJson("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, consent: true, source: "homepage" }),
+        body: JSON.stringify({ email, consent: true, source }),
       });
       track("sign_up", { method: "newsletter" });
       setStatus("done");

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { MobileNav } from "@/components/mobile-nav";
 import { CartButton } from "@/components/cart-button";
+import { SavedLink } from "@/components/saved-link";
 import { SearchBox } from "@/components/search-box";
 import { NAV_LINKS } from "@/lib/nav-links";
 
@@ -10,6 +11,7 @@ async function AccountLinks() {
 
   return (
     <>
+      <SavedLink />
       <CartButton />
       {session?.user ? (
         <>

@@ -29,6 +29,11 @@ export default function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/saved" className="hover:text-ivory hover:underline">
+                Saved Items
+              </Link>
+            </li>
+            <li>
               <Link href="/guides" className="hover:text-ivory hover:underline">
                 Guides
               </Link>

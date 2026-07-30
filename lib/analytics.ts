@@ -17,6 +17,7 @@ export type AnalyticsEvent =
   | "view_item_list"
   | "search"
   | "add_to_cart"
+  | "add_to_wishlist"
   | "view_cart"
   | "begin_checkout"
   | "purchase"
@@ -29,6 +30,7 @@ const META_EVENT_MAP: Record<AnalyticsEvent, string> = {
   view_item_list: "ViewContent",
   search: "Search",
   add_to_cart: "AddToCart",
+  add_to_wishlist: "AddToWishlist",
   view_cart: "ViewContent",
   begin_checkout: "InitiateCheckout",
   purchase: "Purchase",

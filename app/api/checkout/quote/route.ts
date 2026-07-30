@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { ShippingError } from "@/lib/shipping";
 import { getShippingQuote } from "@/lib/shipping-provider";
 import { SHIPPING_ZONES } from "@/lib/shipping-data";
-import { lineTotalCents, sumCents } from "@/lib/money";
 import { calculateDeliveryEstimate, mergeDeliveryEstimates } from "@/lib/delivery";
+import { cartItemsSchema, priceCartLines, CartPricingError } from "@/lib/cart-pricing";
 
+/**
+ * Shipping/total quote for a client-submitted cart. Guest-capable (no
+ * sign-in required) and, like create-order, re-prices every line against
+ * the database rather than trusting the client.
+ */
 const quoteSchema = z.object({
+  items: cartItemsSchema,
   fullName: z.string().trim().max(200).optional(),
   line1: z.string().trim().max(200).optional(),
   city: z.string().trim().max(120).optional(),
@@ -25,11 +29,6 @@ const quoteSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
   let body: unknown;
   try {
     body = await req.json();
@@ -41,20 +40,19 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "state is required and must be a valid 2-letter code" }, { status: 400 });
   }
-  const { fullName, line1, city, state, postalCode } = parsed.data;
+  const { items, fullName, line1, city, state, postalCode } = parsed.data;
 
-  const cart = await prisma.cart.findUnique({
-    where: { userId: session.user.id },
-    include: { items: { include: { variant: { include: { product: true } } } } },
-  });
-
-  if (!cart || cart.items.length === 0) {
-    return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+  let priced;
+  try {
+    priced = await priceCartLines(items);
+  } catch (err) {
+    if (err instanceof CartPricingError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    throw err;
   }
 
   try {
-    const itemWeights = cart.items.flatMap((i) => Array(i.quantity).fill(i.variant.product.weightGrams));
-
     // Full address is used for a live carrier-rate lookup when available
     // (see lib/shipping-provider.ts); state alone is enough for the static
     // rate-table fallback, so this quote works even before the customer
@@ -67,19 +65,17 @@ export async function POST(req: NextRequest) {
         state,
         postalCode: postalCode || "",
       },
-      itemWeightsGrams: itemWeights,
+      itemWeightsGrams: priced.itemWeightsGrams,
       zones: SHIPPING_ZONES,
     });
 
-    const subtotalCents = sumCents(
-      cart.items.map((i) => lineTotalCents(i.variant.priceCents ?? i.variant.product.basePriceCents, i.quantity)),
-    );
+    const subtotalCents = priced.subtotalCents;
 
-    const estimates = cart.items.map((i) =>
+    const estimates = priced.lines.map((l) =>
       calculateDeliveryEstimate({
-        readyToShip: i.variant.product.readyToShip,
-        processingMinDays: i.variant.product.processingMinDays,
-        processingMaxDays: i.variant.product.processingMaxDays,
+        readyToShip: l.readyToShip,
+        processingMinDays: l.processingMinDays,
+        processingMaxDays: l.processingMaxDays,
         transitMinDays: shipping.transitMinDays,
         transitMaxDays: shipping.transitMaxDays,
       }),

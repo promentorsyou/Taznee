@@ -15,6 +15,7 @@ import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductMetaTags } from "@/components/product-meta-tags";
 import { ReviewsSection } from "@/components/reviews-section";
+import { SaveButton } from "@/components/save-button";
 import { ShareButton } from "@/components/share-button";
 import { SizeGuideModal } from "@/components/size-guide-modal";
 import { RecentlyViewed } from "@/components/recently-viewed";
@@ -110,7 +111,18 @@ export default async function ProductDetailPage({
           colors={colors}
         />
 
-        <div className="mt-5">
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <SaveButton
+            product={{
+              slug: product.slug,
+              name: product.name,
+              basePriceCents: product.basePriceCents,
+              compareAtCents: product.compareAtCents,
+              readyToShip: product.readyToShip,
+              imageUrl: product.images[0]?.url ?? null,
+              designerName: product.designer?.name ?? null,
+            }}
+          />
           <ShareButton
             url={absoluteUrl(`/product/${product.slug}`)}
             title={product.name}

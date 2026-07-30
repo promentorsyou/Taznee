@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { centsToDisplay, discountPercent } from "@/lib/money";
+import { SaveButton } from "@/components/save-button";
 
 export interface ProductCardData {
   slug: string;
@@ -15,7 +16,8 @@ export interface ProductCardData {
 export function ProductCard({ product }: { product: ProductCardData }) {
   const pct = discountPercent(product.basePriceCents, product.compareAtCents);
   return (
-    <Link href={`/product/${product.slug}`} className="group block">
+    <Link href={`/product/${product.slug}`} className="group block relative">
+      <SaveButton product={product} variant="icon" />
       <div className="relative aspect-[3/4] overflow-hidden bg-charcoal/5 rounded-md">
         {product.imageUrl && (
           <Image

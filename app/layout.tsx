@@ -6,6 +6,7 @@ import SiteFooter from "@/components/site-footer";
 import { JsonLd } from "@/components/json-ld";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 import { CartProvider } from "@/components/cart-provider";
+import { WishlistProvider } from "@/components/wishlist-provider";
 import { CartDrawer } from "@/components/cart-drawer";
 import { IS_INDEXABLE, organizationSchema, websiteSchema } from "@/lib/seo";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
         </a>
         {/* CartProvider wraps the whole tree so the header badge, the
             product page, and the drawer all read one cart. */}
+        <WishlistProvider>
         <CartProvider>
           <SiteHeader />
           <main id="main" className="flex-1">
@@ -71,6 +73,7 @@ export default function RootLayout({
           <SiteFooter />
           <CartDrawer />
         </CartProvider>
+        </WishlistProvider>
         <AnalyticsProvider />
       </body>
     </html>

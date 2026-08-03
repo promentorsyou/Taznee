@@ -47,6 +47,10 @@ const nextConfig: NextConfig = {
               source: "/hand-sphere.html",
               headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" }],
             },
+            {
+              source: "/power-surge.html",
+              headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" }],
+            },
           ];
         },
       }),

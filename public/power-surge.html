@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Surge — Hand Powered Energy Field</title>
+<style>
+  :root {
+    --ink: #fff6e6;
+    --dim: rgba(255, 246, 230, 0.42);
+    --line: rgba(255, 246, 230, 0.14);
+    --bg: #060402;
+    --gold: #ffb347;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #stage {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    will-change: transform;
+  }
+
+  #video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    opacity: 0;
+    transition: opacity 600ms ease;
+    pointer-events: none;
+  }
+  body.cam-on #video { opacity: 0.92; }
+
+  body.cam-on #stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(6,4,2,0.05) 0%, rgba(6,4,2,0.62) 100%);
+    pointer-events: none;
+  }
+
+  #scene {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .ui { position: fixed; z-index: 3; }
+
+  .title {
+    top: 28px;
+    left: 32px;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    font-size: 27px;
+    letter-spacing: 0.01em;
+    font-weight: 400;
+    line-height: 1.15;
+    text-shadow: 0 0 24px rgba(255, 179, 71, 0.25);
+  }
+  .title small {
+    display: block;
+    margin-top: 7px;
+    font-family: inherit;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--dim);
+    letter-spacing: 0.02em;
+  }
+
+  .legend {
+    bottom: 28px;
+    left: 32px;
+    font-size: 11px;
+    line-height: 2.05;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .legend b {
+    color: var(--ink);
+    font-weight: 500;
+    display: inline-block;
+    min-width: 92px;
+    opacity: 0.75;
+  }
+
+  .panel {
+    top: 26px;
+    right: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  button {
+    appearance: none;
+    background: rgba(255, 246, 230, 0.05);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 200ms ease, border-color 200ms ease;
+    backdrop-filter: blur(8px);
+  }
+  button:hover { background: rgba(255, 246, 230, 0.11); border-color: rgba(255,246,230,0.32); }
+  button[aria-pressed="true"] { background: var(--gold); color: #241200; border-color: transparent; }
+
+  .status {
+    font-size: 10.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #d8574a;
+    box-shadow: 0 0 10px currentColor;
+    transition: background 300ms ease;
+  }
+  .dot.live { background: #5fd39b; }
+
+  .power {
+    top: 74px;
+    right: 32px;
+    text-align: right;
+  }
+  .power .label {
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .power .value {
+    font-variant-numeric: tabular-nums;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--gold);
+    text-shadow: 0 0 18px rgba(255, 179, 71, 0.55);
+  }
+
+  .boot {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    text-align: center;
+    padding: 24px;
+    transition: opacity 500ms ease;
+  }
+  .boot.gone { opacity: 0; pointer-events: none; }
+  .boot h2 {
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-weight: 400;
+    font-size: 22px;
+    margin: 0 0 10px;
+  }
+  .boot p { color: var(--dim); font-size: 12.5px; letter-spacing: 0.05em; margin: 0 0 22px; max-width: 34ch; line-height: 1.7; }
+  .boot button { background: var(--gold); color: #241200; border-color: transparent; padding: 11px 22px; }
+
+  #flashOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4;
+    background: #fff6e6;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (max-width: 640px) {
+    .title { top: 20px; left: 20px; font-size: 21px; }
+    .panel { top: 18px; right: 20px; }
+    .power { top: 64px; right: 20px; }
+    .legend { left: 20px; bottom: 20px; font-size: 10px; }
+    .legend b { min-width: 78px; }
+  }
+</style>
+</head>
+<body class="cam-on">
+
+<div id="stage">
+  <video id="video" playsinline muted autoplay></video>
+  <canvas id="scene"></canvas>
+</div>
+<div id="flashOverlay"></div>
+
+<h1 class="ui title">Surge<small>self-powered energy field</small></h1>
+
+<div class="ui panel">
+  <button id="camBtn" aria-pressed="true">Hide camera</button>
+  <div class="status"><span class="dot" id="dot"></span><span id="statusText">initialising</span></div>
+</div>
+
+<div class="ui power">
+  <div class="label">Power level</div>
+  <div class="value" id="powerValue">0</div>
+</div>
+
+<div class="ui legend">
+  <div><b>One hand</b> move &amp; rotate the field</div>
+  <div><b>Pinch + hold</b> charge, release to surge</div>
+  <div><b>Two hands</b> spread to grow</div>
+  <div><b>Fingers up</b> shift the aura</div>
+</div>
+
+<div class="boot" id="boot">
+  <div>
+    <h2>Allow camera access</h2>
+    <p>You'll see yourself on screen with the energy field wrapped around your hand. Video never leaves this page — hand tracking runs entirely in the browser.</p>
+    <button id="startBtn">Begin</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+
+<script>
+(() => {
+  "use strict";
+
+  const PARTICLE_COUNT = 3000;
+  const FOV = 620;
+  const CHARGE_TIME = 1300;      // ms of pinching for a full surge
+  const REFORM_TIME = 2200;      // ms for the field to pull back together
+
+  const stage = document.getElementById("stage");
+  const canvas = document.getElementById("scene");
+  const ctx = canvas.getContext("2d", { alpha: true });
+  const video = document.getElementById("video");
+  const boot = document.getElementById("boot");
+  const dot = document.getElementById("dot");
+  const statusText = document.getElementById("statusText");
+  const powerValue = document.getElementById("powerValue");
+  const flashOverlay = document.getElementById("flashOverlay");
+
+  let W = 0, H = 0, DPR = 1;
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    view.baseRadius = Math.min(W, H) * 0.2;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Particles — a Fibonacci sphere, held in flat typed arrays
+   * ------------------------------------------------------------------ */
+
+  const bx = new Float32Array(PARTICLE_COUNT); // unit sphere position
+  const by = new Float32Array(PARTICLE_COUNT);
+  const bz = new Float32Array(PARTICLE_COUNT);
+  const px = new Float32Array(PARTICLE_COUNT); // live position (display space)
+  const py = new Float32Array(PARTICLE_COUNT);
+  const pz = new Float32Array(PARTICLE_COUNT);
+  const vx = new Float32Array(PARTICLE_COUNT); // burst velocity
+  const vy = new Float32Array(PARTICLE_COUNT);
+  const vz = new Float32Array(PARTICLE_COUNT);
+  const hueOff = new Float32Array(PARTICLE_COUNT);
+  const sizeJit = new Float32Array(PARTICLE_COUNT);
+  const radJit = new Float32Array(PARTICLE_COUNT); // breaks up the lattice moiré
+  const depth = new Float32Array(PARTICLE_COUNT);
+  const order = new Array(PARTICLE_COUNT); // reused every frame for depth sort
+
+  (function seed() {
+    const golden = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const y = 1 - (i / (PARTICLE_COUNT - 1)) * 2;
+      const r = Math.sqrt(Math.max(0, 1 - y * y));
+      const t = golden * i;
+      bx[i] = Math.cos(t) * r;
+      by[i] = y;
+      bz[i] = Math.sin(t) * r;
+      hueOff[i] = (Math.random() - 0.5) * 30;
+      sizeJit[i] = 0.6 + Math.random() * 0.9;
+      radJit[i] = 0.94 + Math.random() * 0.1;
+      order[i] = i;
+    }
+  })();
+
+  /* ------------------------------------------------------------------ *
+   * Scene state
+   * ------------------------------------------------------------------ */
+
+  // Fingers select a point on a warm-to-white power spectrum rather than a
+  // hue wheel: low counts stay ember-orange, higher counts push toward a
+  // hot gold and finally a near-white flare at a full hand.
+  const PALETTE = [
+    { hue: 14, white: 0 },
+    { hue: 28, white: 0 },
+    { hue: 38, white: 0.12 },
+    { hue: 45, white: 0.28 },
+    { hue: 48, white: 0.5 },
+    { hue: 50, white: 0.82 }
+  ];
+
+  const view = {
+    baseRadius: 170,
+    cx: 0, cy: 0,
+    cxT: 0, cyT: 0,
+    rotX: -0.25, rotY: 0,
+    spinX: 0, spinY: 0.0035,
+    scale: 1, scaleT: 1,
+    hue: PALETTE[0].hue, hueT: PALETTE[0].hue,
+    white: 0, whiteT: 0,
+    breath: 0,
+    shake: 0          // current screen-shake amplitude in px
+  };
+
+  const burst = { t: -1, power: 0 };
+  const charge = { active: false, start: 0, value: 0 };
+  const flash = { a: 0 };
+  const rings = [];       // shockwave rings on release
+  const bolts = [];       // transient lightning bolts
+
+  let powerLevel = 0;
+  let powerDisplayed = -1;
+
+  const hand = {
+    present: false,
+    x: 0, y: 0,
+    px: 0, py: 0,
+    twoHands: false,
+    spread: 0,
+    fingers: -1
+  };
+
+  /* ------------------------------------------------------------------ *
+   * MediaPipe wiring
+   * ------------------------------------------------------------------ */
+
+  function setStatus(text, live) {
+    statusText.textContent = text;
+    dot.classList.toggle("live", !!live);
+  }
+
+  function landmarkDist(a, b) {
+    const dx = a.x - b.x, dy = a.y - b.y, dz = (a.z || 0) - (b.z || 0);
+    return Math.hypot(dx, dy, dz);
+  }
+
+  function countFingers(lm, handedness) {
+    let n = 0;
+    const mirrored = handedness === "Left";
+    const thumbOut = mirrored
+      ? lm[4].x > lm[3].x && lm[4].x > lm[2].x
+      : lm[4].x < lm[3].x && lm[4].x < lm[2].x;
+    if (thumbOut) n++;
+    for (const [tip, pip] of [[8, 6], [12, 10], [16, 14], [20, 18]]) {
+      if (lm[tip].y < lm[pip].y) n++;
+    }
+    return n;
+  }
+
+  function palmCentre(lm) {
+    const ids = [0, 5, 9, 13, 17];
+    let x = 0, y = 0;
+    for (const i of ids) { x += lm[i].x; y += lm[i].y; }
+    return { x: x / ids.length, y: y / ids.length };
+  }
+
+  function onResults(res) {
+    const hands = res.multiHandLandmarks || [];
+    const labels = (res.multiHandedness || []).map(h => h.label);
+
+    if (!hands.length) {
+      hand.present = false;
+      hand.twoHands = false;
+      if (charge.active) releaseCharge();
+      charge.active = false;
+      setStatus("no hands", true);
+      return;
+    }
+
+    hand.present = true;
+    hand.twoHands = hands.length > 1;
+
+    const lm = hands[0];
+    const palm = palmCentre(lm);
+    const sx = (1 - palm.x) * W;
+    const sy = palm.y * H;
+
+    hand.px = hand.x; hand.py = hand.y;
+    hand.x = sx; hand.y = sy;
+
+    view.cxT = (sx - W / 2) * 0.85;
+    view.cyT = (sy - H / 2) * 0.85;
+
+    const dx = hand.x - hand.px;
+    const dy = hand.y - hand.py;
+    if (Math.abs(dx) < 200 && Math.abs(dy) < 200) {
+      view.spinY += dx * 0.00006;
+      view.spinX += dy * 0.00004;
+    }
+
+    const fingers = countFingers(lm, labels[0]);
+    hand.fingers = fingers;
+    const tone = PALETTE[Math.min(fingers, 5)];
+    view.hueT = tone.hue;
+    view.whiteT = tone.white;
+
+    const span = Math.max(1e-4, landmarkDist(lm[0], lm[9]));
+    const pinch = landmarkDist(lm[4], lm[8]) / span;
+
+    if (hands.length > 1) {
+      const a = palmCentre(hands[0]);
+      const b = palmCentre(hands[1]);
+      hand.spread = Math.hypot(a.x - b.x, a.y - b.y);
+      view.scaleT = clamp(0.4 + hand.spread * 2.6, 0.35, 2.9);
+      view.cxT = ((1 - (a.x + b.x) / 2) * W - W / 2) * 0.7;
+      view.cyT = (((a.y + b.y) / 2) * H - H / 2) * 0.7;
+      if (charge.active) releaseCharge();
+      charge.active = false;
+      setStatus("two hands · scale " + view.scaleT.toFixed(2), true);
+      return;
+    }
+
+    if (pinch < 0.42) {
+      if (!charge.active) { charge.active = true; charge.start = performance.now(); }
+      charge.value = Math.min(1, (performance.now() - charge.start) / CHARGE_TIME);
+      setStatus("charging " + Math.round(charge.value * 100) + "%", true);
+    } else {
+      if (charge.active) releaseCharge();
+      charge.active = false;
+      setStatus(fingers + (fingers === 1 ? " finger" : " fingers"), true);
+    }
+  }
+
+  function releaseCharge() {
+    const power = Math.max(0.18, charge.value);
+    charge.value = 0;
+    burst.t = 0;
+    burst.power = power;
+    const speed = 10 + power * 40;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const j = 0.45 + Math.random() * 1.3;
+      vx[i] = (px[i] - view.cx) * 0.012 * j * speed * 0.1 + (Math.random() - 0.5) * speed;
+      vy[i] = (py[i] - view.cy) * 0.012 * j * speed * 0.1 + (Math.random() - 0.5) * speed;
+      vz[i] = pz[i] * 0.012 * j * speed * 0.1 + (Math.random() - 0.5) * speed;
+    }
+    flash.a = 0.55 + power * 0.4;
+    rings.push({ t: 0, x: W / 2 + view.cx, y: H / 2 + view.cy, power });
+    rings.push({ t: -120, x: W / 2 + view.cx, y: H / 2 + view.cy, power: power * 0.7 });
+  }
+
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  /* ------------------------------------------------------------------ *
+   * Render loop
+   * ------------------------------------------------------------------ */
+
+  let last = performance.now();
+  let lastPowerPaint = 0;
+
+  function frame(now) {
+    const dt = Math.min(48, now - last);
+    last = now;
+    const step = dt / 16.667;
+
+    view.cx = lerp(view.cx, view.cxT, 0.09 * step);
+    view.cy = lerp(view.cy, view.cyT, 0.09 * step);
+    view.scale = lerp(view.scale, view.scaleT, 0.07 * step);
+    view.hue = lerp(view.hue, nearestHue(view.hue, view.hueT), 0.06 * step);
+    view.white = lerp(view.white, view.whiteT, 0.06 * step);
+    view.breath += 0.012 * step;
+
+    view.spinX *= Math.pow(0.94, step);
+    view.spinY = lerp(view.spinY, 0.0035, 0.02 * step);
+    view.rotX = clamp(view.rotX + view.spinX * step, -1.2, 1.2);
+    view.rotY += view.spinY * step;
+
+    if (charge.active) {
+      charge.value = Math.min(1, (now - charge.start) / CHARGE_TIME);
+    }
+
+    let reform = 1;
+    if (burst.t >= 0) {
+      burst.t += dt;
+      reform = clamp(burst.t / REFORM_TIME, 0, 1);
+      reform = reform * reform * (3 - 2 * reform);
+      if (burst.t > REFORM_TIME) { burst.t = -1; reform = 1; }
+    }
+    const bursting = burst.t >= 0;
+    const energy = charge.active ? charge.value : (bursting ? 1 - reform : 0);
+
+    // Power level: a restless idle hum, surging hard on charge/burst.
+    const targetPower = 1200 + energy * 8800 + (bursting ? burst.power * 4000 : 0);
+    powerLevel = lerp(powerLevel, targetPower, 0.05 * step) + (Math.random() - 0.5) * 12;
+    powerLevel = Math.max(0, powerLevel);
+
+    // Screen shake ramps with charge and spikes hard on release, then decays.
+    const shakeTarget = charge.active ? charge.value * charge.value * 5 : 0;
+    view.shake = bursting && burst.t < 260
+      ? Math.max(view.shake, (1 - burst.t / 260) * (10 + burst.power * 10))
+      : lerp(view.shake, shakeTarget, 0.15 * step);
+
+    const chargePull = charge.active ? 1 - charge.value * 0.24 : 1;
+    const radius = view.baseRadius * view.scale * chargePull *
+                   (1 + Math.sin(view.breath) * 0.02 + energy * 0.05);
+
+    const cosX = Math.cos(view.rotX), sinX = Math.sin(view.rotX);
+    const cosY = Math.cos(view.rotY), sinY = Math.sin(view.rotY);
+    const damp = Math.pow(0.955, step);
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const x0 = bx[i], y0 = by[i], z0 = bz[i];
+      const x1 = x0 * cosY + z0 * sinY;
+      const z1 = z0 * cosY - x0 * sinY;
+      const y1 = y0 * cosX - z1 * sinX;
+      const z2 = z1 * cosX + y0 * sinX;
+
+      const r = radius * radJit[i];
+      const tx = view.cx + x1 * r;
+      const ty = view.cy + y1 * r;
+      const tz = z2 * r;
+
+      if (bursting) {
+        vx[i] *= damp; vy[i] *= damp; vz[i] *= damp;
+        px[i] += vx[i] * step;
+        py[i] += vy[i] * step;
+        pz[i] += vz[i] * step;
+        const pull = reform * reform * 0.16 * step;
+        px[i] = lerp(px[i], tx, pull);
+        py[i] = lerp(py[i], ty, pull);
+        pz[i] = lerp(pz[i], tz, pull);
+        if (reform > 0.995) { px[i] = tx; py[i] = ty; pz[i] = tz; }
+      } else {
+        px[i] = tx; py[i] = ty; pz[i] = tz;
+      }
+      depth[i] = pz[i];
+    }
+
+    order.sort((a, b) => depth[a] - depth[b]);
+
+    // Shake the video + canvas together so the self-view sells the impact too.
+    if (view.shake > 0.05) {
+      const sx = (Math.random() - 0.5) * view.shake;
+      const sy = (Math.random() - 0.5) * view.shake;
+      stage.style.transform = "translate(" + sx.toFixed(1) + "px," + sy.toFixed(1) + "px)";
+    } else {
+      stage.style.transform = "";
+    }
+
+    ctx.clearRect(0, 0, W, H);
+
+    const ox = W / 2, oy = H / 2;
+    const baseHue = view.hue;
+
+    // Occasional lightning while charge is high, more frequent near full.
+    if (charge.active && charge.value > 0.45 && Math.random() < 0.02 + charge.value * 0.05) {
+      bolts.push(makeBolt(ox + view.cx, oy + view.cy, radius));
+    }
+
+    ctx.globalCompositeOperation = "lighter";
+
+    for (let k = 0; k < PARTICLE_COUNT; k++) {
+      const i = order[k];
+      const z = pz[i];
+      const persp = FOV / (FOV + z + 340);
+      if (persp <= 0.02) continue;
+
+      const x = ox + px[i] * persp;
+      const y = oy + py[i] * persp;
+      if (x < -40 || x > W + 40 || y < -40 || y > H + 40) continue;
+
+      const dz = clamp((z / (radius + 1)) * 0.5 + 0.5, 0, 1);
+      const alpha = (0.2 + dz * 0.8) * (0.85 + energy * 0.3);
+      const size = (1.1 + dz * 2.2) * sizeJit[i] * persp * (1 + energy * 0.6);
+
+      const h = (baseHue + hueOff[i] * (1 + energy)) % 360;
+      const sat = 90 - view.white * 55;
+      const light = 46 + dz * 34 + energy * 10 + view.white * 32;
+      ctx.fillStyle = "hsla(" + h.toFixed(0) + "," + sat.toFixed(0) + "%," + light.toFixed(0) + "%," + alpha.toFixed(3) + ")";
+      ctx.fillRect(x - size * 0.5, y - size * 0.5, size, size);
+    }
+
+    ctx.globalCompositeOperation = "source-over";
+    drawBolts(dt);
+    drawRings(dt);
+    drawChargeRing(ox + view.cx, oy + view.cy, radius);
+
+    flash.a *= Math.pow(0.90, step);
+    flashOverlay.style.opacity = flash.a.toFixed(3);
+
+    if (now - lastPowerPaint > 90) {
+      lastPowerPaint = now;
+      const shown = Math.round(powerLevel / 10) * 10;
+      if (shown !== powerDisplayed) {
+        powerDisplayed = shown;
+        powerValue.textContent = shown.toLocaleString("en-US");
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  function makeBolt(x, y, radius) {
+    // Random midpoint-displacement jagged line from just off-screen to the
+    // field's edge, so it reads as energy arcing in rather than out.
+    const angle = Math.random() * Math.PI * 2;
+    const startR = Math.max(W, H) * 0.65;
+    let sx = x + Math.cos(angle) * startR;
+    let sy = y + Math.sin(angle) * startR;
+    const ex = x + Math.cos(angle) * radius * 1.1;
+    const ey = y + Math.sin(angle) * radius * 1.1;
+
+    const pts = [[sx, sy]];
+    const segs = 7;
+    for (let i = 1; i < segs; i++) {
+      const t = i / segs;
+      const mx = lerp(sx, ex, t) + (Math.random() - 0.5) * 60 * (1 - t * 0.6);
+      const my = lerp(sy, ey, t) + (Math.random() - 0.5) * 60 * (1 - t * 0.6);
+      pts.push([mx, my]);
+    }
+    pts.push([ex, ey]);
+    return { pts, t: 0, life: 90 + Math.random() * 60 };
+  }
+
+  function drawBolts(dt) {
+    for (let i = bolts.length - 1; i >= 0; i--) {
+      const b = bolts[i];
+      b.t += dt;
+      if (b.t > b.life) { bolts.splice(i, 1); continue; }
+      const a = 1 - b.t / b.life;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "hsla(45,100%,90%," + (a * 0.9).toFixed(3) + ")";
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = "rgba(255,210,120,0.9)";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(b.pts[0][0], b.pts[0][1]);
+      for (let p = 1; p < b.pts.length; p++) ctx.lineTo(b.pts[p][0], b.pts[p][1]);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawRings(dt) {
+    for (let i = rings.length - 1; i >= 0; i--) {
+      const r = rings[i];
+      r.t += dt;
+      if (r.t < 0) continue;
+      const life = 900;
+      if (r.t > life) { rings.splice(i, 1); continue; }
+      const t = r.t / life;
+      const rad = t * (Math.max(W, H) * 0.75) * (0.4 + r.power * 0.6);
+      const a = (1 - t) * 0.5 * r.power;
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.strokeStyle = "hsla(42,100%,80%," + a.toFixed(3) + ")";
+      ctx.lineWidth = 3 + (1 - t) * 4;
+      ctx.beginPath();
+      ctx.arc(r.x, r.y, rad, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawChargeRing(x, y, radius) {
+    if (!charge.active && charge.value <= 0.001) return;
+    const r = radius * 1.34 + 18;
+    const v = charge.value;
+
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "hsla(" + view.hue.toFixed(0) + ",70%,70%,0.16)";
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = "hsla(" + view.hue.toFixed(0) + ",95%,70%,0.9)";
+    ctx.strokeStyle = "hsla(" + view.hue.toFixed(0) + ",95%," + (62 + v * 24).toFixed(0) + "%,0.95)";
+    ctx.beginPath();
+    ctx.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * v);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function nearestHue(from, to) {
+    let d = ((to - from) % 360 + 540) % 360 - 180;
+    return from + d;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Boot
+   * ------------------------------------------------------------------ */
+
+  document.getElementById("camBtn").addEventListener("click", (e) => {
+    const on = document.body.classList.toggle("cam-on");
+    e.currentTarget.textContent = on ? "Hide camera" : "Show camera";
+    e.currentTarget.setAttribute("aria-pressed", String(on));
+  });
+
+  document.getElementById("startBtn").addEventListener("click", start, { once: true });
+
+  async function start() {
+    boot.classList.add("gone");
+    setStatus("loading model");
+
+    if (typeof Hands === "undefined") {
+      setStatus("model failed to load");
+      return;
+    }
+
+    const hands = new Hands({
+      locateFile: (f) => "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/" + f
+    });
+    hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.6
+    });
+    hands.onResults(onResults);
+
+    try {
+      const cam = new Camera(video, {
+        onFrame: async () => { await hands.send({ image: video }); },
+        width: 640,
+        height: 480
+      });
+      await cam.start();
+      setStatus("tracking", true);
+    } catch (err) {
+      console.error(err);
+      setStatus("camera blocked");
+    }
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

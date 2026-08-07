@@ -41,6 +41,16 @@ const nextConfig: NextConfig = {
                 { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
               ],
             },
+            {
+              // Uses the webcam for live hand tracking, so it needs an
+              // exception to the site-wide camera lockdown above.
+              source: "/hand-sphere.html",
+              headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" }],
+            },
+            {
+              source: "/power-surge.html",
+              headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" }],
+            },
           ];
         },
       }),

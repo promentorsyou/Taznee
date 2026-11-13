@@ -5,6 +5,7 @@
  * exist.
  */
 import { prisma } from "@/lib/prisma";
+import { shouldUseFixtures } from "@/lib/catalog";
 
 export interface ReviewView {
   id: string;
@@ -23,6 +24,8 @@ export interface ReviewSummary {
 }
 
 export async function getApprovedReviews(productId: string): Promise<ReviewView[]> {
+  // No database (demo catalog) means no reviews — the honest empty state.
+  if (await shouldUseFixtures()) return [];
   const rows = await prisma.review.findMany({
     where: { productId, status: "APPROVED" },
     include: { user: { select: { name: true } } },

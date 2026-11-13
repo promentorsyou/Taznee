@@ -17,6 +17,7 @@ The app runs in two forms:
 |---|---|---|
 | `DATABASE_URL` | Live app | Postgres connection string (e.g. Neon, Supabase, Vercel Postgres). |
 | `NEXTAUTH_SECRET` | Live app auth | `openssl rand -base64 32`. |
+| `AUTH_TRUST_HOST` | Live app auth (non-Vercel hosts) | Set to `true` when hosting anywhere except Vercel, otherwise sign-in fails with `UntrustedHost`. |
 | `STRIPE_SECRET_KEY` | Checkout | Stripe **test** key first (`sk_test_…`), live key at launch. |
 | `STRIPE_PUBLISHABLE_KEY` | Checkout | `pk_test_…` / `pk_live_…`. |
 | `STRIPE_WEBHOOK_SECRET` | Checkout | From the Stripe webhook endpoint (`whsec_…`). Required — the webhook rejects unsigned requests. |

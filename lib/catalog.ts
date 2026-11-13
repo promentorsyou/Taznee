@@ -382,3 +382,17 @@ export function getAllStaticSlugs() {
     productSlugs: STATIC_PRODUCTS.map((p) => p.slug),
   };
 }
+
+/**
+ * Search index for the static export, where search runs in the browser
+ * (app/search/page.static.tsx). Mirrors the fields the live search
+ * matches: name, description, and category name.
+ */
+export function getStaticSearchIndex() {
+  return STATIC_PRODUCTS.map((p) => ({
+    card: toCardData(p),
+    haystack: [p.name, p.description, getStaticCategoryBySlug(p.categorySlug)?.name ?? ""]
+      .join(" ")
+      .toLowerCase(),
+  }));
+}

@@ -126,7 +126,7 @@ export function ShareButton({
       {menuOpen && (
         <div
           role="menu"
-          className="absolute left-0 z-40 mt-2 w-48 overflow-hidden rounded-md border border-charcoal/15 bg-ivory shadow-lg"
+          className="absolute right-0 sm:right-auto sm:left-0 z-40 mt-2 w-48 max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border border-charcoal/15 bg-ivory shadow-lg"
         >
           {targets.map((t) => (
             <a

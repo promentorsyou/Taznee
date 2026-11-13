@@ -16,7 +16,7 @@ export function SavedPageClient({ recommendations }: { recommendations: ProductC
     return (
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
         <h1 className="mb-8 font-serif text-3xl">Saved Items</h1>
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4" aria-hidden="true">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-6 md:grid-cols-4" aria-hidden="true">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
               <div className="aspect-[3/4] rounded-md bg-charcoal/5" />
@@ -50,7 +50,7 @@ export function SavedPageClient({ recommendations }: { recommendations: ProductC
         {recommendations.length > 0 && (
           <section className="mt-14">
             <h2 className="mb-5 font-serif text-2xl">Popular right now</h2>
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-6 md:grid-cols-4">
               {recommendations.map((p) => (
                 <ProductCard key={p.slug} product={p} />
               ))}
@@ -69,7 +69,7 @@ export function SavedPageClient({ recommendations }: { recommendations: ProductC
       <p className="mb-8 text-sm text-charcoal/55">
         Saved on this device. Tap a heart again to remove a piece.
       </p>
-      <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-6 md:grid-cols-4">
         {items.map((p) => (
           <ProductCard key={p.slug} product={p} />
         ))}

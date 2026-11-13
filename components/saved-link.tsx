@@ -16,7 +16,7 @@ export function SavedLink() {
     <Link
       href="/saved"
       aria-label={showCount ? `Saved items, ${count} saved` : "Saved items"}
-      className="relative flex items-center px-1 py-2 hover:text-burgundy focus-visible:outline-2 focus-visible:outline-burgundy rounded"
+      className="relative flex h-11 w-11 items-center justify-center rounded-md hover:bg-charcoal/5 hover:text-burgundy active:bg-charcoal/10 focus-visible:outline-2 focus-visible:outline-burgundy"
     >
       <svg
         width="20"
@@ -33,7 +33,7 @@ export function SavedLink() {
         />
       </svg>
       {showCount && (
-        <span className="absolute -right-1.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-burgundy px-1 text-[10px] font-medium text-ivory">
+        <span className="absolute right-0.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-burgundy px-1 text-[10px] font-medium text-ivory">
           {count > 99 ? "99+" : count}
         </span>
       )}

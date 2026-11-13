@@ -154,7 +154,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       {products.length === 0 ? (
         <p className="text-charcoal/50">No products match these filters yet.</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-6 sm:gap-6">
           {products.map((p) => (
             <ProductCard key={p.slug} product={p} />
           ))}

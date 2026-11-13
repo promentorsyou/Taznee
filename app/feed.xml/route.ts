@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { shouldUseFixtures } from "@/lib/catalog";
 import { absoluteUrl, ORGANIZATION_NAME } from "@/lib/seo";
 
 /**
@@ -22,6 +23,10 @@ function xmlEscape(s: string): string {
 }
 
 export async function GET() {
+  // Never publish the demo fixture to Merchant Center as if it were real inventory.
+  if (await shouldUseFixtures()) {
+    return new Response("Product feed unavailable: no database connected.", { status: 503 });
+  }
   const products = await prisma.product.findMany({
     where: { isActive: true },
     include: {

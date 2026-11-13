@@ -62,7 +62,7 @@ export function CartPageClient({ recommendations }: { recommendations: ProductCa
         {recommendations.length > 0 && (
           <section className="mt-14">
             <h2 className="mb-5 font-serif text-2xl">Popular right now</h2>
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-6 md:grid-cols-4">
               {recommendations.map((p) => (
                 <ProductCard key={p.slug} product={p} />
               ))}
@@ -155,7 +155,7 @@ export function CartPageClient({ recommendations }: { recommendations: ProductCa
       {recommendations.length > 0 && (
         <section className="mt-16">
           <h2 className="mb-5 font-serif text-2xl">You may also like</h2>
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-6 md:grid-cols-4">
             {recommendations.map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}

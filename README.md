@@ -147,8 +147,10 @@ Pages on every push to `main`. It uses the in-memory fixture data in
 files and has no server runtime.
 
 **Not included in the static preview** — because they need a live server/database:
-cart, checkout, sign-in/accounts, the admin dashboard, and category filtering
-(only `searchParams`-free pages can be statically exported). Those work in the
+placing orders, sign-in/accounts, the admin dashboard, and category filtering
+(only `searchParams`-free pages can be statically exported). The guest cart,
+checkout form, saved items, and product search do work there — they run
+entirely in the browser (search filters a catalog index embedded at build time). Those work in the
 full app (`npm run dev` locally, or the Vercel deployment described above).
 
 To enable it: in the repo's GitHub Settings → Pages, set **Source** to

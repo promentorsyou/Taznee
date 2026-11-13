@@ -32,11 +32,19 @@ export async function POST(req: NextRequest) {
   }
 
   const { email, source } = parsed.data;
-  await prisma.newsletterSubscriber.upsert({
-    where: { email: email.toLowerCase() },
-    update: { consent: true, source: source ?? "homepage" },
-    create: { email: email.toLowerCase(), consent: true, source: source ?? "homepage" },
-  });
+  try {
+    await prisma.newsletterSubscriber.upsert({
+      where: { email: email.toLowerCase() },
+      update: { consent: true, source: source ?? "homepage" },
+      create: { email: email.toLowerCase(), consent: true, source: source ?? "homepage" },
+    });
+  } catch (err) {
+    console.error("[newsletter] could not save subscriber:", err);
+    return NextResponse.json(
+      { error: "Signups are temporarily unavailable. Please try again soon." },
+      { status: 503 },
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }

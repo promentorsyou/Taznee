@@ -103,7 +103,7 @@ function PaymentsDisabledNotice() {
       <h2 className="font-serif text-lg">{PAYMENTS_DISABLED_HEADING}</h2>
       <p className="mt-2 text-sm leading-relaxed text-charcoal/75">{PAYMENTS_DISABLED_BODY}</p>
       <div className="mt-4">
-        <NewsletterSignup enabled={!IS_STATIC_BUILD} source="checkout_waitlist" />
+        <NewsletterSignup enabled={!IS_STATIC_BUILD} source="checkout_waitlist" tone="light" />
       </div>
     </div>
   );
@@ -202,8 +202,8 @@ export function CheckoutFlow() {
         </p>
       )}
 
-      <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">
-        <form onSubmit={handleSubmit} noValidate className="space-y-8">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <form onSubmit={handleSubmit} noValidate className="min-w-0 space-y-8">
           <section aria-labelledby="contact-heading">
             <h2 id="contact-heading" className="mb-4 font-serif text-xl">
               1. Contact
@@ -392,7 +392,7 @@ export function CheckoutFlow() {
           </div>
         </form>
 
-        <aside className="lg:sticky lg:top-24 lg:self-start">
+        <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-lg border border-charcoal/15 p-5">
             <h2 className="mb-4 font-serif text-lg">Order review</h2>
             <ul className="divide-y divide-charcoal/10">

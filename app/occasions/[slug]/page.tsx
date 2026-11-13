@@ -45,7 +45,7 @@ export default async function OccasionPage({ params }: Params) {
       <p className="text-charcoal/60 mb-8 max-w-2xl">{occasion.description}</p>
 
       {products.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-6 sm:gap-6">
           {products.map((p) => (
             <ProductCard key={p.slug} product={p} />
           ))}

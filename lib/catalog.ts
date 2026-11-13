@@ -20,6 +20,44 @@ import { getOccasion } from "@/lib/occasions";
 
 export const STATIC_EXPORT = process.env.STATIC_EXPORT === "1";
 
+let dbCheck: { ok: boolean; at: number } | null = null;
+
+/**
+ * True when catalog reads should come from the built-in demo fixture
+ * instead of Postgres: always in the static export, and on the live app
+ * whenever the database is missing, unreachable or not migrated. Without
+ * this, a deployment with no (or a broken) DATABASE_URL turns every page
+ * into "Something went wrong". The probe result is cached for 30s so a
+ * dead database costs one short timeout per half-minute, not per request.
+ */
+export async function shouldUseFixtures(): Promise<boolean> {
+  if (STATIC_EXPORT) return true;
+  if (!process.env.DATABASE_URL) return true;
+  const now = Date.now();
+  if (dbCheck && now - dbCheck.at < 30_000) return !dbCheck.ok;
+
+  let ok = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      prisma.category.count(),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("database probe timed out")), 4000);
+      }),
+    ]);
+    ok = true;
+  } catch (err) {
+    console.error(
+      "[catalog] database unavailable, serving the demo catalog instead:",
+      err instanceof Error ? err.message.trim().split("\n").pop() : err,
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+  dbCheck = { ok, at: now };
+  return !ok;
+}
+
 function toCardData(p: StaticProduct): ProductCardData {
   return {
     slug: p.slug,
@@ -33,7 +71,7 @@ function toCardData(p: StaticProduct): ProductCardData {
 }
 
 export async function getHomepageData() {
-  if (STATIC_EXPORT) {
+  if (await shouldUseFixtures()) {
     return {
       categories: STATIC_CATEGORIES.slice(0, 5),
       featured: STATIC_PRODUCTS.filter((p) => p.isFeatured)
@@ -74,7 +112,7 @@ export interface CategoryFilters {
 }
 
 export const getCategoryPageData = cache(async (slug: string, filters: CategoryFilters) => {
-  if (STATIC_EXPORT) {
+  if (await shouldUseFixtures()) {
     const category = getStaticCategoryBySlug(slug);
     if (!category) return null;
 
@@ -190,7 +228,7 @@ export const getCategoryPageData = cache(async (slug: string, filters: CategoryF
 });
 
 export const getProductDetailData = cache(async (slug: string) => {
-  if (STATIC_EXPORT) {
+  if (await shouldUseFixtures()) {
     const product = getStaticProductBySlug(slug);
     if (!product) return null;
     const category = getStaticCategoryBySlug(product.categorySlug);
@@ -251,13 +289,21 @@ export const getProductDetailData = cache(async (slug: string) => {
 
 /**
  * Full-text-ish product search over name, description, and category name.
- * Live app only — the static export excludes the /search route (it has no
- * server runtime to run a query per request). Case-insensitive contains
- * match; empty query returns no results.
+ * Case-insensitive contains match; empty query returns no results. Falls
+ * back to the demo fixture when the database is unavailable (the static
+ * export searches in the browser instead, see components/static-search.tsx).
  */
 export const searchProducts = cache(async (query: string) => {
   const q = query.trim();
   if (!q) return [];
+
+  if (await shouldUseFixtures()) {
+    const needle = q.toLowerCase();
+    return getStaticSearchIndex()
+      .filter((e) => e.haystack.includes(needle))
+      .map((e) => e.card)
+      .slice(0, 48);
+  }
 
   const products = await prisma.product.findMany({
     where: {
@@ -295,7 +341,7 @@ export const getOccasionProducts = cache(async (slug: string): Promise<ProductCa
   const occasion = getOccasion(slug);
   if (!occasion) return null;
 
-  if (STATIC_EXPORT) {
+  if (await shouldUseFixtures()) {
     return STATIC_PRODUCTS.filter((p) => p.occasions?.includes(slug)).map(toCardData);
   }
 
@@ -321,7 +367,7 @@ export const getOccasionProducts = cache(async (slug: string): Promise<ProductCa
  * rows only — never invented "customers also bought" data.
  */
 export const getCartRecommendations = cache(async (limit = 4): Promise<ProductCardData[]> => {
-  if (STATIC_EXPORT) {
+  if (await shouldUseFixtures()) {
     return STATIC_PRODUCTS.filter((p) => p.isFeatured).slice(0, limit).map(toCardData);
   }
 
@@ -348,7 +394,7 @@ export const getCartRecommendations = cache(async (limit = 4): Promise<ProductCa
  */
 export const getRelatedProducts = cache(
   async (categorySlug: string, excludeSlug: string, limit = 4): Promise<ProductCardData[]> => {
-    if (STATIC_EXPORT) {
+    if (await shouldUseFixtures()) {
       return STATIC_PRODUCTS.filter((p) => p.categorySlug === categorySlug && p.slug !== excludeSlug)
         .slice(0, limit)
         .map(toCardData);
@@ -381,4 +427,18 @@ export function getAllStaticSlugs() {
     categorySlugs: STATIC_CATEGORIES.map((c) => c.slug),
     productSlugs: STATIC_PRODUCTS.map((p) => p.slug),
   };
+}
+
+/**
+ * Search index for the static export, where search runs in the browser
+ * (app/search/page.static.tsx). Mirrors the fields the live search
+ * matches: name, description, and category name.
+ */
+export function getStaticSearchIndex() {
+  return STATIC_PRODUCTS.map((p) => ({
+    card: toCardData(p),
+    haystack: [p.name, p.description, getStaticCategoryBySlug(p.categorySlug)?.name ?? ""]
+      .join(" ")
+      .toLowerCase(),
+  }));
 }

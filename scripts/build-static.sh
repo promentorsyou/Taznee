@@ -18,7 +18,7 @@ cd "$(dirname "$0")/.."
 # that truly need a server runtime stay excluded: auth, API handlers,
 # server actions, account/admin, and the order confirmation page (which
 # reads an order from Postgres by id).
-EXCLUDE_DIRS=(app/api app/login app/register app/account app/admin app/feed.xml app/search app/checkout/confirmation)
+EXCLUDE_DIRS=(app/api app/login app/register app/account app/admin app/feed.xml app/checkout/confirmation)
 # pairs of "real path:static replacement path", swapped in for the build.
 # Stash names are indexed (not basename-derived) since multiple real paths
 # share a basename (every dynamic route is literally "page.tsx").
@@ -28,6 +28,7 @@ SWAP_FILES=(
   "app/occasions/[slug]/page.tsx:app/occasions/[slug]/page.static.tsx"
   "components/site-header.tsx:components/site-header.static.tsx"
   "app/sitemap.ts:app/sitemap.static.ts"
+  "app/search/page.tsx:app/search/page.static.tsx"
 )
 STASH_DIR=".static-build-stash"
 

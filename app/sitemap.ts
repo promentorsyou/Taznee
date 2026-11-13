@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { shouldUseFixtures } from "@/lib/catalog";
+import { STATIC_CATEGORIES, STATIC_PRODUCTS } from "@/lib/static-data";
 import { GUIDES } from "@/lib/guides";
 import { OCCASIONS } from "@/lib/occasions";
 
@@ -12,10 +14,13 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://taznee.example.com";
 
-  const [categories, products] = await Promise.all([
-    prisma.category.findMany({ select: { slug: true } }),
-    prisma.product.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
-  ]);
+  const fixtures = await shouldUseFixtures();
+  const [categories, products]: [{ slug: string }[], { slug: string; updatedAt?: Date }[]] = fixtures
+    ? [STATIC_CATEGORIES, STATIC_PRODUCTS]
+    : await Promise.all([
+        prisma.category.findMany({ select: { slug: true } }),
+        prisma.product.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
+      ]);
 
   return [
     { url: siteUrl, changeFrequency: "daily", priority: 1 },
@@ -39,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...products.map((p) => ({
       url: `${siteUrl}/product/${p.slug}`,
-      lastModified: p.updatedAt,
+      ...(p.updatedAt ? { lastModified: p.updatedAt } : {}),
       changeFrequency: "weekly" as const,
       priority: 0.6,
     })),
